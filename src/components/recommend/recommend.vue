@@ -1,87 +1,89 @@
 <template>
-	<div class="recommend">
-		<scroll ref="scroll" class="recommend-content" :data="discList">
+  <div class="recommend">
+    <scroll ref="scroll" class="recommend-content" :data="discList">
       <div>
-			<div v-if="recommends.length" class="recomend-wrapper">
-				<slider>
-					<div v-for="item in recommends">
-						<a class="needsclick" :href="item.linkUrl">
-							<img @load="loadImage" :src="item.picUrl">
-						</a>
-					</div>
-				</slider>
-			</div>
-			<div class="recommend-list">
-				<h2 class="list-title">热门歌单推荐</h2>
-				<ul>
-					<li class="item" v-for="(item,index) in discList">
-						<div class="icon">
-							<img v-lazy="item.imgurl" height="60" width="60">
-						</div>
-						<div class="text">
-							<h2 class="name" v-text="item.creator.name"></h2>
-							<p class="desc" v-text="item.dissname"></p>
-						</div>
-					</li>
-				</ul>
-        <div class="loading-wrapper" v-show="!discList.length">
-          <loading :desc="歌单正在努力加载中..."></loading>
+        <div v-if="recommends.length" class="recomend-wrapper">
+          <slider>
+            <div v-for="item in recommends">
+              <a class="needsclick" :href="item.linkUrl">
+                <img @load="loadImage" :src="item.picUrl">
+              </a>
+            </div>
+          </slider>
         </div>
-			</div>
+        <div class="recommend-list">
+          <h2 class="list-title">热门歌单推荐</h2>
+          <ul>
+            <li class="item" v-for="(item,index) in discList">
+              <div class="icon">
+                <img v-lazy="item.imgurl" height="60" width="60">
+              </div>
+              <div class="text">
+                <h2 class="name" v-text="item.creator.name"></h2>
+                <p class="desc" v-text="item.dissname"></p>
+              </div>
+            </li>
+          </ul>
+          <div class="loading-wrapper" v-show="!discList.length">
+            <loading :title="'歌单正在努力加载中...'"></loading>
+          </div>
+        </div>
       </div>
-		</scroll>
-	</div>
+    </scroll>
+  </div>
 </template>
 
 <script>
 import { getRecommend } from 'api/recommend'  // 引入getremonmend方法 获取推荐页数据
 import { ERR_OK } from 'api/config'  // 引入常规常量参数
 import slider from 'base/slider/slider' // 引入slider基础轮播组件
-import {getDiscList} from 'api/recommend' 
+import { getDiscList } from 'api/recommend'
 import scroll from 'base/scroll/scroll' //引入 scroll 组件
 import loading from 'base/loading/loading' //引入加载gif组件
 
 export default {
-	data() {
-		return {
-			recommends: [],
-			discList:[],
-		}
-	},
-	components: {
-		slider,
+  data() {
+    return {
+      recommends: [],
+      discList: [],
+    }
+  },
+  components: {
+    slider,
     scroll,
     loading,
-	},
-	methods: {
-		_getRecommend() {
-			getRecommend().then((res) => {
-				if (res.code === ERR_OK) {
-
-					this.recommends = res.data.slider;
-				}
-			})
-		},
-      _getDiscList() {
-        getDiscList().then((res) => {
-          if (res.code === ERR_OK) {
-						// console.log(res.data.list); //接受代理请求到的数据
-            this.discList = res.data.list
-          }
-        })
-      },
-      loadImage(){ //图片加载出一次即可撑开高度
-        if(!this.checkImage){
-          this.$refs.scroll.refresh();
-        }
-      }
-	},
-	created() {
-    this._getRecommend();
-		this._getDiscList();
   },
-  computed:{
-    
+  methods: {
+    _getRecommend() {
+      getRecommend().then((res) => {
+        if (res.code === ERR_OK) {
+
+          this.recommends = res.data.slider;
+        }
+      })
+    },
+    _getDiscList() {
+      getDiscList().then((res) => {
+        if (res.code === ERR_OK) {
+          // console.log(res.data.list); //接受代理请求到的数据
+          this.discList = res.data.list
+        }
+      })
+    },
+    loadImage() { //图片加载出一次即可撑开高度
+      if (!this.checkImage) {
+        this.$refs.scroll.refresh();
+      }
+    }
+  },
+  created() {
+    this._getRecommend();
+    setTimeout(()=> {
+       this._getDiscList();
+    }, 2000);
+  },
+  computed: {
+
   }
 }
 </script>
