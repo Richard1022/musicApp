@@ -29,7 +29,7 @@
       width: 30px
       height: 32px
       margin-right: 9px
-      bg-image('logo')
+      bgr-image('default')
       background-size: 30px 32px
     .text
       display: inline-block
