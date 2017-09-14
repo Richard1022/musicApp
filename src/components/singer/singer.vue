@@ -1,16 +1,76 @@
 <template>
 	<div class="singer">
-		
+
 	</div>
 </template>
 
 <script>
-	export default{
-		
+import { getSingerList } from 'api/singer';  // 引入getSingerList方法
+import { ERR_OK } from 'api/config' //引入常量0
+import singerClass from 'common/js/singer'
+
+
+const HOT_NAME = "热门"
+const HOT_SINGER_LENGTH = 10; //定义热门歌手length常量
+
+export default {
+	data() {
+		return {
+			singers: []
+		}
+	},
+	created() {
+		this._getSingerList();// 初始化获取歌手数据
+	},
+	methods: {
+		_getSingerList() {
+			getSingerList().then((res) => {
+				if (res.code === ERR_OK) {
+					this.singers = this._normalizeSinger(res.data.list);
+					console.log(this.singers);
+ }
+			})
+		},
+		_normalizeSinger(list) { //序列化歌手列表 声明一个map对象存放分类后的歌手
+			let map = {
+				hot:{
+					title: HOT_NAME,
+					item: [] //存放热门歌手空数组,遍历singers
+				}
+			};
+			list.forEach((item, index) => { //遍历热门常量数据,获取需要的数据存入map对象的hit键
+				if (index < HOT_SINGER_LENGTH) {
+					map.hot.item.push(
+						new singerClass(item.Fsinger_name,item.Fsinger_mid)
+					);
+				};
+				let key = item.Findex; //设置map新键 首字母索引 
+				if (!map[key]) {
+					map[key]={
+						title:HOT_NAME,
+						item:[]
+					}
+				};//如果首次遍历当前首字母,创建新键,设置title为首字母,item为空数组
+				//如果不是首次遍历,判断是否符合首字母索引
+				if (key == item.Findex) {
+					map[key].item.push(
+						new singerClass(item.Fsinger_name,item.Fsinger_mid)
+					)
+				}
+			});
+			return map;
+		}
 	}
+
+}
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
+.singer
+	position fixed
+	top 88px
+	bottom 0
+	width 100%
 
 	
 </style>

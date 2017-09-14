@@ -26,29 +26,35 @@ export default {
             {
                 return
             }
-            this.scroll=new BScroll(this.$refs.wrapper, {
+            this.scroll = new BScroll(this.$refs.wrapper, {
                 click: this.click,
                 proboType: this.proboType,
             })
         },
-        refresh(){
-            this.scroll&&this.scroll.refresh();
+        refresh() {
+            this.scroll && this.scroll.refresh();
         },
-        disabled(){
-            this.scroll&&this.scroll.disabled();
+        disabled() {
+            this.scroll && this.scroll.disabled();
         },
-        enabled(){
-            this.scroll&&this.scroll.enabled();
+        enabled() {
+            this.scroll && this.scroll.enabled();
         }
     },
-    mounted(){
-        setTimeout(()=> {
+    mounted() {
+        setTimeout(() => {
             this._initScroll(); //初始化调用
         }, 20);
+        window.addEventListener("resize",()=>{
+            if(!this.scroll){
+                this._initScroll();
+            }
+            this.scroll&&this.scroll.refresh()
+        });
     },
-    watch:{
-        data(val,oldVal){
-            let that=this;
+    watch: {
+        data(val, oldVal) {
+            let that = this;
             setTimeout(function() {
                 that.refresh();
             }, 20);
