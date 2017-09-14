@@ -47,7 +47,7 @@ export default {
 				let key = item.Findex; //设置map新键 首字母索引 
 				if (!map[key]) {
 					map[key]={
-						title:HOT_NAME,
+						title:key,
 						item:[]
 					}
 				};//如果首次遍历当前首字母,创建新键,设置title为首字母,item为空数组
@@ -58,7 +58,21 @@ export default {
 					)
 				}
 			});
-			return map;
+			//map排序
+			let hot=[]; //热门歌手
+			let ret=[];	//排序后的歌手
+			for(let key in map){
+				let val=map[key]; //当前遍历值匹配正则a-z 
+				if(val.title.match(/[A-Za-z]/)){
+					ret.push(val);
+				}else if(val.title===HOT_NAME){
+					hot.push(val);
+				}
+			};
+			ret.sort((a,b)=>{
+				return a.title.charCodeAt(0)-b.title.charCodeAt(0);
+			});
+			return hot.concat(ret);
 		}
 	}
 
