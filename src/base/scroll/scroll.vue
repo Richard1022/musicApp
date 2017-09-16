@@ -7,17 +7,21 @@
 import BScroll from 'better-scroll'
 export default {
     props: {
-        data: {
+        data: {  //传入data属性 watch监听变动,若变动scroll refresh
             type: Array,
             default: null
         },
-        proboType: {
+        probeType: { //滚动距离监听等级123
             type: Number,
             default: 1
         },
         click: {
             type: Boolean,
             default: true
+        },
+        listenScroll: { //监听scroll prop true时  init方法中调用
+            type: Boolean,
+            default: false
         }
     },
     methods: {
@@ -28,8 +32,14 @@ export default {
             }
             this.scroll = new BScroll(this.$refs.wrapper, {
                 click: this.click,
-                proboType: this.proboType,
-            })
+                probeType: this.probeType,
+            });
+            if (this.listenScroll) {
+                let vm=this;
+               this.scroll.on("scroll",(pos)=>{
+                  vm.$emit("scroll",pos);//子组件响度组件通信,父组件监听scroll事件获取传递参数pos
+               })
+            }
         },
         refresh() {
             this.scroll && this.scroll.refresh();
@@ -39,17 +49,23 @@ export default {
         },
         enabled() {
             this.scroll && this.scroll.enabled();
+        },
+        scrollTo() {
+            this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments);
+        },
+        scrollToElement() {
+            this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments);
         }
     },
     mounted() {
         setTimeout(() => {
             this._initScroll(); //初始化调用
-        }, 20);
-        window.addEventListener("resize",()=>{
-            if(!this.scroll){
+        }, 500);
+        window.addEventListener("resize", () => {
+            if (!this.scroll) {
                 this._initScroll();
             }
-            this.scroll&&this.scroll.refresh()
+            this.scroll && this.scroll.refresh()
         });
     },
     watch: {

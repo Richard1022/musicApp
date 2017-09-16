@@ -1,6 +1,6 @@
 <template>
   <div class="recommend">
-    <scroll ref="scroll" class="recommend-content" :data="discList">
+    <scroll ref="scroll" class="recommend-content" :data="discList" :listenScroll="true">
       <div>
         <div v-if="recommends.length" class="recomend-wrapper">
           <slider>
