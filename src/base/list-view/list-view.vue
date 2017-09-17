@@ -12,7 +12,7 @@
       </li>
     </ul>
     <ul class="list-shortcut" @touchstart.stop.prevent="onShortCutTouchStart" @touchmove.stop.prevent="onShortCutTouchMove">
-      <li class="item" v-for="(item,index) in shortcutList" :data-index="index">{{item}}</li>
+      <li class="item" v-for="(item,index) in shortcutList" :data-index="index" :class="{'current':index===currentIndex}">{{item}}</li>
     </ul>
     <div class="loading-container" v-show="!data.length">
       <loading :title="'歌手正在赶来的路上'"></loading>
@@ -37,8 +37,14 @@ export default {
     this.touch = {};
     this.listenScroll = true;
     this.probeType = 3;
-    this.scrollY = -1; //事实Y轴滚动距离
     this.listHeight = []; //listGroup高度数组
+  },
+  data() {
+    return {
+      scrollY: -1, //事实Y轴滚动距离
+      currentIndex: 0,
+      // listHeight:[],
+    }
   },
   components: {
     scroll,
@@ -71,6 +77,7 @@ export default {
       this.scrollY = pos.y
     },
     _scrollTo(index) {
+      
       this.$refs.listView.scrollToElement(this.$refs.listGroup[index], 0);
     },
     caculateHeight() { //计算高度方法
@@ -85,12 +92,30 @@ export default {
       }
     }
   },
-  watch:{
-    data(){
-      setTimeout(()=>{
+  watch: {
+    data() {
+      setTimeout(() => {
         this.caculateHeight();
-        console.log(this.listHeight);
       }, 20);
+    },
+    scrollY(newVal, oldVal) {
+      let listHeight = this.listHeight; //listgroup高度数组
+      // console.log(this.listHeight)
+      if (newVal > 0) {
+        this.currentIndex = 0; //scrollY的值为负数,向下拉动,若大于0 则在顶部 直接返回
+        return
+      };
+      for (let i = 0; i < listHeight.length; i++) {
+        let height1 = listHeight[i];
+        let height2 = listHeight[i + 1];
+        if (-newVal >= height1 && -newVal < height2) {
+          this.currentIndex = i;
+          // console.log(this.currentIndex);
+          return
+        }
+      };
+      //当滚动滚动到最底部,scrollY大于数组最后一个的值
+      // this.currentIndex=listHeight.length-2
     }
   }
 }
