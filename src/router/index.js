@@ -5,6 +5,8 @@ import recommend from 'components/recommend/recommend'
 import search from 'components/search/search'
 import singer from 'components/singer/singer'
 // 以上为首页 四大板块组件
+import singerDetail from 'components/singer-detail/singer-detail' //引入子路由歌手详情组件
+
 Vue.use(Router)
 
 export default new Router({
@@ -27,7 +29,13 @@ export default new Router({
     },
     {
     	path:'/singer',
-    	component:singer
+      component:singer,
+      children:[
+        {
+          path:':id',
+          component:singerDetail
+        },
+      ]
     }    
   ]
 })

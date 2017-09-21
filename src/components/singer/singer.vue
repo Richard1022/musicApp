@@ -1,6 +1,7 @@
 <template>
 	<div class="singer">
-		<list-view :data="singers"></list-view>
+		<list-view @select="selectSinger" :data="singers"></list-view>
+		<router-view></router-view>
 	</div>
 </template>
 
@@ -9,7 +10,7 @@ import { getSingerList } from 'api/singer';  // 引入getSingerList方法
 import { ERR_OK } from 'api/config' //引入常量0
 import singerClass from 'common/js/singer'
 import listView from 'base/list-view/list-view' //引入listview组件
-
+import singerDetail from 'components/singer-detail/singer-detail' //引入歌手详情页组件
 
 const HOT_NAME = "热门"
 const HOT_SINGER_LENGTH = 10; //定义热门歌手length常量
@@ -26,6 +27,11 @@ export default {
 		}, 1000);
 	},
 	methods: {
+		selectSinger(singer){
+			this.$router.push({
+				path:`/singer/${singer.id}`,
+			});
+		},
 		_getSingerList() {
 			getSingerList().then((res) => {
 				if (res.code === ERR_OK) {
@@ -80,6 +86,7 @@ export default {
 	},
 	components: {
 		listView,
+		singerDetail
 	}
 
 }

@@ -4,7 +4,7 @@
       <li class="list-group" v-for="group in data" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
-          <li class="list-group-item" v-for="item in group.item">
+          <li @click="selectItem(item)" class="list-group-item" v-for="item in group.item">
             <img v-lazy="item.avatar" class="avatar">
             <span class="name">{{item.name}}</span>
           </li>
@@ -14,6 +14,11 @@
     <ul class="list-shortcut" @touchstart.stop.prevent="onShortCutTouchStart" @touchmove.stop.prevent="onShortCutTouchMove">
       <li class="item" v-for="(item,index) in shortcutList" :data-index="index" :class="{'current':index===currentIndex}">{{item}}</li>
     </ul>
+    <div class="list-fixed" v-show="fixedTitle" ref="fixed">
+      <div class="fixed-title">
+        {{fixedTitle}}
+      </div>
+    </div>
     <div class="loading-container" v-show="!data.length">
       <loading :title="'歌手正在赶来的路上'"></loading>
     </div>
@@ -25,6 +30,7 @@ import loading from 'base/loading/loading' //引入懒加载gif组件
 import { getData } from 'common/js/dom' //引入获取/设置自定义attribute
 
 const ANCHOR_HEIGHT = 18;//常亮 anchor高度
+const TITLE_HEIGHT =30 ; //fixedtitle高度
 export default {
   props: {
     data: {
@@ -44,6 +50,7 @@ export default {
       scrollY: -1, //事实Y轴滚动距离
       currentIndex: 0,
       // listHeight:[],
+      diff:-1, //title和fixtitle之间的距离
     }
   },
   components: {
@@ -58,8 +65,17 @@ export default {
       });
       return arr;
     },
+    fixedTitle(){//歌手页固定头部
+    if(this.scrollY>=0){
+      return "";
+    }
+    return this.data[this.currentIndex]?this.data[this.currentIndex].title:'';
+    }
   },
   methods: {
+    selectItem(item){
+      this.$emit('select',item);//子父组件通信传递item
+    },
     onShortCutTouchStart(event) {
       let anchor = getData(event.target, "index"); //获取触摸事件源的index
       this.touch.y1 = event.touches[0].pageY; //获取触摸事件首次触摸式的pageY的值
@@ -77,7 +93,7 @@ export default {
       this.scrollY = pos.y
     },
     _scrollTo(index) {
-      
+      this.scrollY = -this.listHeight[index];
       this.$refs.listView.scrollToElement(this.$refs.listGroup[index], 0);
     },
     caculateHeight() { //计算高度方法
@@ -109,14 +125,23 @@ export default {
         let height1 = listHeight[i];
         let height2 = listHeight[i + 1];
         if (-newVal >= height1 && -newVal < height2) {
+          this.diff=height2+newVal; //差值= 下限- Y轴纵向偏移量
           this.currentIndex = i;
-          // console.log(this.currentIndex);
           return
         }
       };
       //当滚动滚动到最底部,scrollY大于数组最后一个的值
       // this.currentIndex=listHeight.length-2
-    }
+    },
+      diff(newVal) {
+        //检测 固定标题之间的差值 若差值慢慢变小,则3d偏移,否则不做dom操作
+        let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0
+        if (this.fixedTop === fixedTop) {
+          return
+        }
+        this.fixedTop = fixedTop
+        this.$refs.fixed.style.transform = `translate3d(0,${fixedTop}px,0)`
+      }
   }
 }
 </script>
@@ -171,7 +196,7 @@ export default {
           color: $color-theme
     .list-fixed
       position: absolute
-      top: 0
+      top: -1px
       left: 0
       width: 100%
       .fixed-title
