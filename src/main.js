@@ -6,8 +6,9 @@ import router from './router'
 import 'babel-polyfill'  //填补Promise
 import fastclick from 'fastclick'  //取消300ms触摸延迟
 import lazyLoad from 'vue-lazyload' //引入vue懒加载组件
+import store from './store' //引入vuex
 
-fastclick.attach(document.body)
+fastclick.attach(document.body);
 Vue.use(lazyLoad,{
   loading: require('common/image/default.png')
 })  //首页图片懒加载 v-lazy="图片source"
@@ -19,6 +20,7 @@ import '@/common/stylus/index.styl'   //引入所有stylus
 new Vue({
   el: '#app',
   router,
+  store,
   template: '<App/>',
   components: { App }
 })

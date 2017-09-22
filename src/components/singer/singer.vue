@@ -12,6 +12,7 @@ import singerClass from 'common/js/singer'
 import listView from 'base/list-view/list-view' //引入listview组件
 import singerDetail from 'components/singer-detail/singer-detail' //引入歌手详情页组件
 
+
 const HOT_NAME = "热门"
 const HOT_SINGER_LENGTH = 10; //定义热门歌手length常量
 
@@ -31,6 +32,8 @@ export default {
 			this.$router.push({
 				path:`/singer/${singer.id}`,
 			});
+			// console.log(this.$store.state);
+			this.$store.commit('setSinger',singer);
 		},
 		_getSingerList() {
 			getSingerList().then((res) => {
