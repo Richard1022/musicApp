@@ -1,5 +1,17 @@
-// const state={
-//     singer:{}
-// };
+import {PlayerConfig} from 'common/js/config' //引入播放器配置JS
+console.log(PlayerConfig.sequence);
 
-// export default state;
+const state={
+    singer: {
+        name:"defaultName"
+    },
+    playing_state:false,  //播放/暂停
+    loop:false,         //循环播放
+    fullScreen:false,  //全屏
+    sequenceList:[],  //顺序播放列表
+    playList:[],        //播放列表
+    mode:PlayerConfig.sequence, //播放模式
+    currentIndex:-1  //当前播放索引
+};
+
+export default state;

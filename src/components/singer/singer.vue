@@ -11,7 +11,7 @@ import { ERR_OK } from 'api/config' //引入常量0
 import singerClass from 'common/js/singer'
 import listView from 'base/list-view/list-view' //引入listview组件
 import singerDetail from 'components/singer-detail/singer-detail' //引入歌手详情页组件
-
+import {mapMutations} from 'vuex'
 
 const HOT_NAME = "热门"
 const HOT_SINGER_LENGTH = 10; //定义热门歌手length常量
@@ -23,17 +23,18 @@ export default {
 		}
 	},
 	created() {
-		setTimeout(()=>{
+		setTimeout(() => {
 			this._getSingerList();// 初始化获取歌手数据
 		}, 1000);
 	},
 	methods: {
-		selectSinger(singer){
+		selectSinger(singer) {
 			this.$router.push({
-				path:`/singer/${singer.id}`,
+				path: `/singer/${singer.id}`,
 			});
-			// console.log(this.$store.state);
-			this.$store.commit('setSinger',singer);
+			// console.log(this.$store._mutations);  //mapMutations语法糖 commit SET_SINGER
+			this.setSinger(singer);
+			// this.$store.commit('SET_SINGER',singer);
 		},
 		_getSingerList() {
 			getSingerList().then((res) => {
@@ -85,7 +86,10 @@ export default {
 				return a.title.charCodeAt(0) - b.title.charCodeAt(0);
 			});
 			return hot.concat(ret);
-		}
+		},
+		...mapMutations({
+			setSinger: 'SET_SINGER' //映射 this.setSinger() 为 this.$store.commit('setSinger')
+		})
 	},
 	components: {
 		listView,

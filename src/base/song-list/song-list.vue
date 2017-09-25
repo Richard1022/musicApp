@@ -24,6 +24,9 @@ export default {
     methods:{
         getDesc(item){
             return `${item.singer}-${item.album}`
+        },
+        selectItem(item,index){
+           this.$emit('select', item, index); //单击歌曲派发事件给父组件
         }
     }
 }

@@ -6,13 +6,21 @@
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
     </div>
-    <div class="song-list-wrapper">
-      <song-list :songs="songs" ></song-list>
-    </div>
+    <scroll :data="songs" class="list" ref="srcollFix">
+      <div class="song-list-wrapper">
+        <song-list @select="selectItem" :songs="songs"></song-list>
+      </div>
+      <div class="loading-container" v-show="!songs.length">
+        <loading :title="'正在获取歌单列表...'"></loading>
+      </div>
+    </scroll>
   </div>
 </template>
 <script>
 import songList from 'base/song-list/song-list';//引入songlist base组件
+import scroll from 'base/scroll/scroll' //引入scroll组件
+import loading from 'base/loading/loading'
+import {mapActions} from 'vuex'
 
 export default {
   props: {
@@ -38,9 +46,20 @@ export default {
     back() {
       this.$router.back()
     },
+    selectItem(item,index){ //监听songlist歌曲单击事件,调用vueX actions 批量提交mutations
+      this.selectPlay({list:this.songs,index});
+    },
+      ...mapActions([
+        'selectPlay',
+      ])
   },
   components: {
-    songList
+    songList,
+    scroll,
+    loading
+  },
+  mounted() {  //挂在之后的hook 设置滚动区域的上边距为背景头像的高度
+    this.$refs.srcollFix.$el.style.top = `${this.$refs.bgImage.clientHeight}px`;
   }
 }
 </script>
@@ -125,6 +144,7 @@ export default {
       bottom: 0
       width: 100%
       background: $color-background
+      overflow hidden
       .song-list-wrapper
         padding: 20px 30px
       .loading-container

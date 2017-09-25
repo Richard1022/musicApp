@@ -28,7 +28,7 @@ export default {
                getSingerDetail(this.singerObj.id).then((res) => {
             if (res.code === ERR_OK) {
                 this.songs=this.normalize(res.data.list);
-                console.log(this.songs);
+                // console.log(this.songs);
             }
         })
         }
@@ -63,6 +63,5 @@ export default {
     transition all .3s
 .singerSlide-enter,.singerSlide-leave-to
     transform: translate3d(100%, 0, 0)
-
 </style>
 
