@@ -1,86 +1,197 @@
 <template>
   <div class="player" v-show="playList.length>0">
     <transition name="normal">
-    <div class="normal-player" v-show="fullScreen">
-      <div class="background">
-        <img :src="currentSong.image" height="100%" width="100%">
-      </div>
-      <div class="top">
-        <div class="back" @click="back">
-          <i class="icon-back"></i>
+      <div class="normal-player" v-show="fullScreen">
+        <div class="background">
+          <img :src="currentSong.image" height="100%" width="100%">
         </div>
-        <h1 class="title" v-html="currentSong.name"></h1>
-        <h2 class="subtitle" v-html="currentSong.singer"></h2>
-      </div>
-      <div class="middle">
-        <div class="middle-l">
-          <div class="cd-wrapper">
-            <div class="cd">
-              <img class="image" :src="currentSong.image">
+        <div class="top">
+          <div class="back" @click="back">
+            <i class="icon-back"></i>
+          </div>
+          <h1 class="title" v-html="currentSong.name"></h1>
+          <h2 class="subtitle" v-html="currentSong.singer"></h2>
+        </div>
+        <div class="middle">
+          <div class="middle-l">
+            <div class="cd-wrapper">
+              <div class="cd" :class="rotate">
+                <img class="image" :src="currentSong.image">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom">
+          <div class="progress-wrapper">
+            <span class="time time-l">{{formatSeconds(currentTime)}}</span>
+            <div class="progress-bar-wrapper">
+              <progress-bar :precent="precentVal"></progress-bar>
+            </div>
+            <span class="time time-r">{{formatSeconds(currentSong.duration)}}</span>
+          </div>
+          <div class="operators">
+            <div class="icon i-left">
+              <i class="icon-sequence"></i>
+            </div>
+            <div class="icon i-left" :class="disable">
+              <i class="icon-prev" @click="prevSong"></i>
+            </div>
+            <div class="icon i-center" :class="disable">
+              <i :class="playIcon" @click="togglePlay"></i>
+            </div>
+            <div class="icon i-right" :class="disable">
+              <i class="icon-next" @click="nextSong"></i>
+            </div>
+            <div class="icon i-right">
+              <i class="icon icon-not-favorite"></i>
             </div>
           </div>
         </div>
       </div>
-      <div class="bottom">
-        <div class="operators">
-          <div class="icon i-left">
-            <i class="icon-sequence"></i>
-          </div>
-          <div class="icon i-left">
-            <i class="icon-prev"></i>
-          </div>
-          <div class="icon i-center">
-            <i class="icon-play"></i>
-          </div>
-          <div class="icon i-right">
-            <i class="icon-next"></i>
-          </div>
-          <div class="icon i-right">
-            <i class="icon icon-not-favorite"></i>
-          </div>
+    </transition>
+    <transition name="mini">
+      <div class="mini-player" v-show="!fullScreen" @click="open">
+        <div class="icon">
+          <img :class="rotate" :src="currentSong.image" width="40" height="40">
+        </div>
+        <div class="text">
+          <h2 class="name" v-html="currentSong.name"></h2>
+          <p class="desc" v-html="currentSong.singer"></p>
+        </div>
+        <div class="control">
+          <i class="icon-mini" :class="miniIcon" @click.stop.prevent="togglePlay"></i>
+        </div>
+        <div class="control">
+          <i class="icon-playlist"></i>
         </div>
       </div>
-    </div>
-     </transition>
-     <transition name="mini">
-    <div class="mini-player" v-show="!fullScreen" @click="open">
-      <div class="icon">
-        <img :src="currentSong.image" width="40" height="40">
-      </div>
-      <div class="text">
-        <h2 class="name" v-html="currentSong.name"></h2>
-        <p class="desc" v-html="currentSong.singer"></p>
-      </div>
-      <div class="control">
-      </div>
-      <div class="control">
-        <i class="icon-playlist"></i>
-      </div>
-    </div>
-      </transition>
+    </transition>
+    <audio ref="audio" :src="currentSong.url" @play="ready" @timeupdate="updateTime"></audio>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import { mapGetters, mapMutations } from 'vuex'
+import progressBar from 'base/progressBar/progressBar'
 
 export default {
+  data() {
+    return {
+      songReady: false,// 音乐准备完毕标识符
+      currentTime: 0,//当前歌曲播放时间
+    }
+  },
+  components:{
+    progressBar,
+  },
   computed: {
     ...mapGetters([
       'fullScreen',
       'playList',
-      'currentSong'
-    ])
+      'currentSong',
+      'playing_state',
+      'currentIndex',
+    ]),
+    disable() {
+      return this.songReady ? '' : 'disable'
+    },
+    rotate() {
+      return this.playing_state ? 'play' : 'play pause'
+    },
+    playIcon() {
+      return this.playing_state ? 'icon-pause' : 'icon-play';
+    },
+    miniIcon() {
+      return this.playing_state ? 'icon-pause-mini' : 'icon-play-mini';
+    },
+    precentVal(){ //播放进度百分比
+      return this.currentTime/this.currentSong.duration;
+    }
   },
   methods: {
     ...mapMutations({
-      setFullScreen :'SET_FULLSCREEN'
+      setFullScreen: 'SET_FULLSCREEN',
+      setPlayingState: 'SET_PLAYING_STATE',
+      setCurrentIndex: 'SET_CURRENTINDEX',
     }),
-    back(){
+    back() {
       this.setFullScreen(false);
     },
-    open(){
+    open() {
       this.setFullScreen(true)
+    },
+    togglePlay() {
+      this.setPlayingState(!this.playing_state);//通過getters获得状态管理模式的播放状态在通过mutations取反
+    },
+    nextSong() {
+      if (!this.songReady) {  //监听play事件 当媒介已就绪可以开始播放时运行的脚本。
+        return;
+      }
+      let index = this.currentIndex + 1;
+      if (index === this.playList.length) {  //边界判断
+        index = 0;
+      }
+      this.setCurrentIndex(index);
+      if (!this.playing_state) {   //同步commit vuex播放状态mutations
+        this.togglePlay();
+      }
+      this.songReady = false;  //标识符还原
+    },
+    prevSong() {
+      if (!this.songReady) {
+        return
+      }
+      let index = this.currentIndex - 1;
+      if (index === -1) {
+        index = this.playList.length - 1;
+      }
+      this.setCurrentIndex(index);
+      if (!this.playing_state) {
+        this.togglePlay();
+      }
+      this.songReady = false;
+    },
+    ready() {
+      this.songReady = true;
+    },
+    error() {
+      console.log('ready error')
+      this.songReady = true;
+    },
+    updateTime(event) {  //timeupdate 事件在音频/视频（audio/video）的播放位置发生改变时触发。
+      this.currentTime = event.target.currentTime;  //获取当前播放时间进度
+    },
+    paddingZero(str, num) {
+      let len = str.toString().length;
+      while (len < num) {
+        str = "0" + str;
+        len++;
+      }
+      return str;
+    },
+    formatSeconds(value) { //声明播放时间过滤器
+      if (!value) {
+        return "0";
+      }
+      let val = value | 0; //或0 相当于 调用Math.floor()下行取整
+      let minutes = val / 60 | 0;
+      let seconds = val % 60;
+      seconds = this.paddingZero(seconds, 2);
+      return `${minutes}:${seconds}`;
+    }
+  },
+  watch: {
+    currentSong(newVal) {
+      this.$nextTick(() => {
+        this.$refs.audio.play();
+      })
+    },
+    playing_state(newVal) {
+      this.$nextTick(() => {
+        // console.log(newVal)
+        let audio = this.$refs.audio;
+        newVal ? audio.play() : audio.pause();
+      })
     }
   }
 }
@@ -317,7 +428,7 @@ export default {
           color: $color-theme-d
         .icon-mini
           font-size: 32px
-          position: absolute
+          // position: absolute
           left: 0
           top: 0
 

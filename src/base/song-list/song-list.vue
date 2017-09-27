@@ -3,8 +3,8 @@
     <ul>
       <li @click="selectItem(song, index)" class="item" v-for="(song, index) in songs">
         <!-- <div class="rank" v-show="rank">
-          <span :class="getRankCls(index)" v-text="getRankText(index)"></span>
-        </div> -->
+            <span :class="getRankCls(index)" v-text="getRankText(index)"></span>
+          </div> -->
         <div class="content">
           <h2 class="name">{{song.name}}</h2>
           <p class="desc">{{getDesc(song)}}</p>
@@ -15,20 +15,20 @@
 </template>
 <script>
 export default {
-    props:{
-        songs:{
-            type:Array,
-            default:[]
-        }
-    },
-    methods:{
-        getDesc(item){
-            return `${item.singer}-${item.album}`
-        },
-        selectItem(item,index){
-           this.$emit('select', item, index); //单击歌曲派发事件给父组件
-        }
+  props: {
+    songs: {
+      type: Array,
+      default: []
     }
+  },
+  methods: {
+    getDesc(item) {
+      return `${item.singer}-${item.album}`
+    },
+    selectItem(item, index) {
+      this.$emit('select', item, index); //单击歌曲派发事件给父组件
+    }
+  }
 }
 </script>
 <style lang="stylus">

@@ -1,5 +1,5 @@
 import {PlayerConfig} from 'common/js/config' //引入播放器配置JS
-console.log(PlayerConfig.sequence);
+// console.log(PlayerConfig.sequence);
 
 const state={
     singer: {
