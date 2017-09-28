@@ -25,13 +25,13 @@
           <div class="progress-wrapper">
             <span class="time time-l">{{formatSeconds(currentTime)}}</span>
             <div class="progress-bar-wrapper">
-              <progress-bar :precent="precentVal"></progress-bar>
+              <progress-bar @percentChange="changePlayProgress" :percent="percentVal"></progress-bar>
             </div>
             <span class="time time-r">{{formatSeconds(currentSong.duration)}}</span>
           </div>
           <div class="operators">
             <div class="icon i-left">
-              <i class="icon-sequence"></i>
+              <i :class="playMode" @click="changePlayMode"></i>
             </div>
             <div class="icon i-left" :class="disable">
               <i class="icon-prev" @click="prevSong"></i>
@@ -59,7 +59,9 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-          <i class="icon-mini" :class="miniIcon" @click.stop.prevent="togglePlay"></i>
+          <circle-progress :radius="SVGsize" :percent="percentVal">
+            <i class="icon-mini" :class="miniIcon" @click.stop.prevent="togglePlay"></i>
+          </circle-progress>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
@@ -73,16 +75,21 @@
 <script type="text/ecmascript-6">
 import { mapGetters, mapMutations } from 'vuex'
 import progressBar from 'base/progressBar/progressBar'
+import circleProgress from 'base/circleProgress/circleProgress'
+import { PlayerConfig } from 'common/js/config' //引入播放模式配置文件
+import { shuffleArr } from 'common/js/util' //引入util.js 的洗牌数组
 
 export default {
   data() {
     return {
       songReady: false,// 音乐准备完毕标识符
       currentTime: 0,//当前歌曲播放时间
+      SVGsize: 32
     }
   },
-  components:{
+  components: {
     progressBar,
+    circleProgress
   },
   computed: {
     ...mapGetters([
@@ -91,6 +98,8 @@ export default {
       'currentSong',
       'playing_state',
       'currentIndex',
+      'mode',
+      'sequenceList',
     ]),
     disable() {
       return this.songReady ? '' : 'disable'
@@ -104,8 +113,11 @@ export default {
     miniIcon() {
       return this.playing_state ? 'icon-pause-mini' : 'icon-play-mini';
     },
-    precentVal(){ //播放进度百分比
-      return this.currentTime/this.currentSong.duration;
+    percentVal() { //播放进度百分比
+      return this.currentTime / this.currentSong.duration;
+    },
+    playMode() {
+      return this.mode === PlayerConfig.sequence ? 'icon-sequence' : this.mode == PlayerConfig.loop ? 'icon-loop' : 'icon-random';
     }
   },
   methods: {
@@ -113,7 +125,33 @@ export default {
       setFullScreen: 'SET_FULLSCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
       setCurrentIndex: 'SET_CURRENTINDEX',
+      setMode: 'SET_MODE',
+      setPlayList: 'SET_PLAY_LIST',
     }),
+    changePlayMode() { //commit setMode mutations
+      let mode = (this.mode + 1) % 3; //播放模式
+      let list = null; //reset list
+      this.setMode(mode);
+      if (mode == PlayerConfig.random) {
+        list = shuffleArr(this.playList);
+      } else {
+        list = this.sequenceList;
+      };
+      this.resetCurrentIndex(list);
+      this.setPlayList(list);
+    },
+    resetCurrentIndex(list) {
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id;
+      })
+      this.setCurrentIndex(index);
+    },
+    changePlayProgress(percent) {
+      this.$refs.audio.currentTime = percent * this.currentSong.duration;
+      if (!this.playing_state) {
+        this.togglePlay();
+      }
+    },
     back() {
       this.setFullScreen(false);
     },
@@ -428,7 +466,7 @@ export default {
           color: $color-theme-d
         .icon-mini
           font-size: 32px
-          // position: absolute
+          position: absolute
           left: 0
           top: 0
 
