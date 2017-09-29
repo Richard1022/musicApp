@@ -20,55 +20,62 @@
               </div>
             </div>
           </div>
+          <scroll class="middle-r" ref="lyricScroll" :data="currentLyric && currentLyric.lines">
+            <div class="lyric-wrapper ">
+              <div v-if="currentLyric ">
+                <p ref="lyricLine " class="text " :class="{ 'current': currentLineNum===index} " v-for="(line,index) in currentLyric.lines ">{{line.txt}}</p>
+              </div>
+            </div>
+          </scroll>
         </div>
-        <div class="bottom">
-          <div class="progress-wrapper">
-            <span class="time time-l">{{formatSeconds(currentTime)}}</span>
-            <div class="progress-bar-wrapper">
-              <progress-bar @percentChange="changePlayProgress" :percent="percentVal"></progress-bar>
+        <div class="bottom ">
+          <div class="progress-wrapper ">
+            <span class="time time-l ">{{formatSeconds(currentTime)}}</span>
+            <div class="progress-bar-wrapper ">
+              <progress-bar @percentChange="changePlayProgress " :percent="percentVal "></progress-bar>
             </div>
-            <span class="time time-r">{{formatSeconds(currentSong.duration)}}</span>
+            <span class="time time-r ">{{formatSeconds(currentSong.duration)}}</span>
           </div>
-          <div class="operators">
-            <div class="icon i-left">
-              <i :class="playMode" @click="changePlayMode"></i>
+          <div class="operators ">
+            <div class="icon i-left ">
+              <i :class="playMode " @click="changePlayMode "></i>
             </div>
-            <div class="icon i-left" :class="disable">
-              <i class="icon-prev" @click="prevSong"></i>
+            <div class="icon i-left " :class="disable ">
+              <i class="icon-prev " @click="prevSong "></i>
             </div>
-            <div class="icon i-center" :class="disable">
-              <i :class="playIcon" @click="togglePlay"></i>
+            <div class="icon i-center " :class="disable ">
+              <i :class="playIcon " @click="togglePlay "></i>
             </div>
-            <div class="icon i-right" :class="disable">
-              <i class="icon-next" @click="nextSong"></i>
+            <div class="icon i-right " :class="disable ">
+              <i class="icon-next " @click="nextSong "></i>
             </div>
-            <div class="icon i-right">
-              <i class="icon icon-not-favorite"></i>
+            <div class="icon i-right ">
+              <i class="icon icon-not-favorite " @click="test "></i>
             </div>
           </div>
         </div>
       </div>
     </transition>
-    <transition name="mini">
-      <div class="mini-player" v-show="!fullScreen" @click="open">
-        <div class="icon">
-          <img :class="rotate" :src="currentSong.image" width="40" height="40">
+    <transition name="mini ">
+      <div class="mini-player " v-show="!fullScreen " @click="open ">
+        <div class="icon ">
+          <img :class="rotate " :src="currentSong.image " width="40 " height="40 ">
         </div>
-        <div class="text">
-          <h2 class="name" v-html="currentSong.name"></h2>
-          <p class="desc" v-html="currentSong.singer"></p>
+        <div class="text ">
+          <h2 class="name " v-html="currentSong.name "></h2>
+          <p class="desc " v-html="currentSong.singer "></p>
         </div>
-        <div class="control">
-          <circle-progress :radius="SVGsize" :percent="percentVal">
-            <i class="icon-mini" :class="miniIcon" @click.stop.prevent="togglePlay"></i>
+        <div class="control ">
+          <circle-progress :radius="SVGsize " :percent="percentVal ">
+            <i class="icon-mini " :class="miniIcon " @click.stop.prevent="togglePlay "></i>
           </circle-progress>
         </div>
-        <div class="control">
-          <i class="icon-playlist"></i>
+        <div class="control ">
+          <i class="icon-playlist "></i>
         </div>
       </div>
     </transition>
-    <audio ref="audio" :src="currentSong.url" @play="ready" @timeupdate="updateTime"></audio>
+    <audio ref="audio " :src="currentSong.url " @ended="end " @play="ready " @timeupdate="updateTime "></audio>
   </div>
 </template>
 
@@ -78,18 +85,23 @@ import progressBar from 'base/progressBar/progressBar'
 import circleProgress from 'base/circleProgress/circleProgress'
 import { PlayerConfig } from 'common/js/config' //引入播放模式配置文件
 import { shuffleArr } from 'common/js/util' //引入util.js 的洗牌数组
+import Lyric from 'lyric-parser'
+import Scroll from 'base/scroll/scroll'
 
 export default {
   data() {
     return {
       songReady: false,// 音乐准备完毕标识符
       currentTime: 0,//当前歌曲播放时间
-      SVGsize: 32
+      SVGsize: 32,
+      currentLyric: null, //默认歌词为null
+      currentLineNum: 0, //当前歌词行数
     }
   },
   components: {
     progressBar,
-    circleProgress
+    circleProgress,
+    Scroll,
   },
   computed: {
     ...mapGetters([
@@ -128,11 +140,45 @@ export default {
       setMode: 'SET_MODE',
       setPlayList: 'SET_PLAY_LIST',
     }),
+    test() {
+      console.log(this.$refs.lyricLine[this.currentLineNum]);
+      this.$refs.lyricScroll.scrollToElement(this.$refs.lyricLine[this.currentLineNum], 1000)
+      // this.$refs.lyricScroll.scrollTo(0,100,1000)
+    },
+    getLyric() {
+      this.currentSong.getLyric().then((lyric) => {
+        this.currentLyric = new Lyric(lyric, this.handleLyric);
+        if (this.playing_state) {
+          this.currentLyric.play();
+        }
+        console.log(this.currentLyric);
+      })
+    },
+    handleLyric({ lineNum, txt }) {
+      this.currentLineNum = lineNum
+      if (lineNum > 5) {
+        let lineElement = this.$refs.lyricLine[lineNum - 5];
+        this.$refs.lyricScroll.scrollToElement(lineElement, 1000);
+      } else {
+        this.$refs.lyricScroll.scrollTo(0, 0, 1000);
+      }
+    },
+    end() {
+      if (this.mode === PlayerConfig.loop) {
+        this.loop();
+      } else {
+        this.nextSong();
+      }
+    },
+    loop() {
+      this.$refs.audio.currentTime = 0;
+      this.$refs.audio.play();
+    },
     changePlayMode() { //commit setMode mutations
       let mode = (this.mode + 1) % 3; //播放模式
       let list = null; //reset list
       this.setMode(mode);
-      if (mode == PlayerConfig.random) {
+      if (mode == PlayerConfig.random) {  //随机打乱当前播放数组
         list = shuffleArr(this.playList);
       } else {
         list = this.sequenceList;
@@ -219,16 +265,19 @@ export default {
     }
   },
   watch: {
-    currentSong(newVal) {
+    currentSong(newVal, oldVal) {
+      if (newVal.id === oldVal.id) {
+        return  //切换模式时 当前播放歌曲的id 没有变化 则保持之前播放状态 
+      };
       this.$nextTick(() => {
         this.$refs.audio.play();
+        this.getLyric();
       })
     },
     playing_state(newVal) {
+      const audio = this.$refs.audio
       this.$nextTick(() => {
-        // console.log(newVal)
-        let audio = this.$refs.audio;
-        newVal ? audio.play() : audio.pause();
+        newVal ? audio.play() : audio.pause()
       })
     }
   }

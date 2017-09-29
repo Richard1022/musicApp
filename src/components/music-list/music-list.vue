@@ -5,7 +5,15 @@
     </div>
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
+      <div class="play-wrapper">
+        <div ref="playBtn" v-show="songs.length>0" class="play" @click="random">
+          <i class="icon-play"></i>
+          <span class="text">随机播放全部</span>
+        </div>
+      </div>
+      <div class="filter" ref="filter"></div>
     </div>
+    <div class="bg-layer" ref="layer"></div>
     <scroll :data="songs" class="list" ref="srcollFix">
       <div class="song-list-wrapper">
         <song-list @select="selectItem" :songs="songs"></song-list>
@@ -20,7 +28,7 @@
 import songList from 'base/song-list/song-list';//引入songlist base组件
 import scroll from 'base/scroll/scroll' //引入scroll组件
 import loading from 'base/loading/loading'
-import {mapActions} from 'vuex'
+import { mapActions } from 'vuex'
 
 export default {
   props: {
@@ -46,12 +54,16 @@ export default {
     back() {
       this.$router.back()
     },
-    selectItem(item,index){ //监听songlist歌曲单击事件,调用vueX actions 批量提交mutations
-      this.selectPlay({list:this.songs,index});
+    selectItem(item, index) { //监听songlist歌曲单击事件,调用vueX actions 批量提交mutations
+      this.selectPlay({ list: this.songs, index });
     },
-      ...mapActions([
-        'selectPlay',
-      ])
+    random(){
+      this.randomPlay({list:this.songs});
+    },
+    ...mapActions([
+      'selectPlay',
+      'randomPlay',
+    ])
   },
   components: {
     songList,
