@@ -50,7 +50,7 @@
               <i class="icon-next " @click="nextSong "></i>
             </div>
             <div class="icon i-right ">
-              <i class="icon icon-not-favorite " @click="test "></i>
+              <i class="icon icon-not-favorite "></i>
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@
         </div>
       </div>
     </transition>
-    <audio ref="audio " :src="currentSong.url " @ended="end " @play="ready " @timeupdate="updateTime "></audio>
+    <audio ref="audio" :src="currentSong.url " @ended="end " @play="ready " @timeupdate="updateTime "></audio>
   </div>
 </template>
 
@@ -140,11 +140,6 @@ export default {
       setMode: 'SET_MODE',
       setPlayList: 'SET_PLAY_LIST',
     }),
-    test() {
-      console.log(this.$refs.lyricLine[this.currentLineNum]);
-      this.$refs.lyricScroll.scrollToElement(this.$refs.lyricLine[this.currentLineNum], 1000)
-      // this.$refs.lyricScroll.scrollTo(0,100,1000)
-    },
     getLyric() {
       this.currentSong.getLyric().then((lyric) => {
         this.currentLyric = new Lyric(lyric, this.handleLyric);
@@ -275,9 +270,9 @@ export default {
       })
     },
     playing_state(newVal) {
-      const audio = this.$refs.audio
       this.$nextTick(() => {
-        newVal ? audio.play() : audio.pause()
+        let audio = this.$refs.audio;
+        newVal ? audio.play() : audio.pause();
       })
     }
   }
