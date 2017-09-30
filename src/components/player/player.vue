@@ -23,7 +23,7 @@
           <scroll class="middle-r" ref="lyricScroll" :data="currentLyric && currentLyric.lines">
             <div class="lyric-wrapper ">
               <div v-if="currentLyric ">
-                <p ref="lyricLine " class="text " :class="{ 'current': currentLineNum===index} " v-for="(line,index) in currentLyric.lines ">{{line.txt}}</p>
+                <p ref="lyricLine" class="text " :class="{ 'current': currentLineNum===index} " v-for="(line,index) in currentLyric.lines" :key="index">{{line.txt}}</p>
               </div>
             </div>
           </scroll>
@@ -152,7 +152,7 @@ export default {
     handleLyric({ lineNum, txt }) {
       this.currentLineNum = lineNum
       if (lineNum > 5) {
-        let lineElement = this.$refs.lyricLine[lineNum - 5];
+        let lineElement = this.$refs.lyricLine[this.currentLineNum - 5];
         this.$refs.lyricScroll.scrollToElement(lineElement, 1000);
       } else {
         this.$refs.lyricScroll.scrollTo(0, 0, 1000);
