@@ -1,6 +1,6 @@
 <template>
-	<div class="singer">
-		<list-view @select="selectSinger" :data="singers"></list-view>
+	<div class="singer" ref="singer">
+		<list-view @select="selectSinger" :data="singers" ref="list"></list-view>
 		<router-view></router-view>
 	</div>
 </template>
@@ -11,12 +11,16 @@ import { ERR_OK } from 'api/config' //引入常量0
 import singerClass from 'common/js/singer'
 import listView from 'base/list-view/list-view' //引入listview组件
 import singerDetail from 'components/singer-detail/singer-detail' //引入歌手详情页组件
-import {mapMutations} from 'vuex'
+import { mapMutations } from 'vuex'
+import { myMixin } from 'common/js/mixin'
 
 const HOT_NAME = "热门"
 const HOT_SINGER_LENGTH = 10; //定义热门歌手length常量
 
 export default {
+	mixins: [
+		myMixin
+	],
 	data() {
 		return {
 			singers: []
@@ -25,9 +29,14 @@ export default {
 	created() {
 		setTimeout(() => {
 			this._getSingerList();// 初始化获取歌手数据
-		}, 1000);
+		}, 200);
 	},
 	methods: {
+		handlePlayList(playList) {
+			const bottomOffset = playList.length > 0 ? '60px' : 0;
+			this.$refs.singer.style.bottom=bottomOffset;
+			this.$refs.list.refresh(); //调用list-view组件方法 重置betterScroll
+		},
 		selectSinger(singer) {
 			this.$router.push({
 				path: `/singer/${singer.id}`,

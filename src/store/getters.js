@@ -18,3 +18,5 @@ export const currentIndex =state => state.currentIndex;
 export const currentSong =(state) => {
     return state.playList[state.currentIndex]||{}; //返回vueX播放列表的currentindex
 }
+ 
+export const desc = state => state.desc;

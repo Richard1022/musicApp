@@ -61,6 +61,21 @@ apiRoutes.get('/getLyric', function (req, res) {
   })
 });
 
+apiRoutes.get('/getSongMenu', function (req, res) {
+  var url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+  axios.get(url, {
+    headers: {
+      referer: 'https://c.y.qq.com/',
+      host: 'c.y.qq.com' //从真实的QQ的服务器地址通过axios发送一个http请求 同事修改refer host,修改成QQ相关refer,host;
+    },
+    params: req.query  //将浏览器端发来的请求参数 头传给服务端,QQ服务端响应
+  }).then((response) => {
+    res.json(response.data) // 在把响应的内容 通过res.json 发送到输出到浏览器端
+  }).catch((e) => {
+    console.log(e)
+  })
+});
+
 app.use('/api', apiRoutes)
 
 var compiler = webpack(webpackConfig)

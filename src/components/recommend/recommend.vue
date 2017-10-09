@@ -1,10 +1,10 @@
 <template>
-  <div class="recommend">
+  <div class="recommend" ref="recommend">
     <scroll ref="scroll" class="recommend-content" :data="discList" :listenScroll="true">
       <div>
         <div v-if="recommends.length" class="recomend-wrapper">
           <slider>
-            <div v-for="item in recommends">
+            <div v-for="(item,index) in recommends" :key="index">
               <a class="needsclick" :href="item.linkUrl">
                 <img @load="loadImage" :src="item.picUrl">
               </a>
@@ -14,7 +14,7 @@
         <div class="recommend-list">
           <h2 class="list-title">热门歌单推荐</h2>
           <ul>
-            <li class="item" v-for="(item,index) in discList">
+            <li @click="selectItem(item)" class="item" v-for="(item,index) in discList" :key="index">
               <div class="icon">
                 <img v-lazy="item.imgurl" height="60" width="60">
               </div>
@@ -30,6 +30,7 @@
         </div>
       </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -40,8 +41,13 @@ import slider from 'base/slider/slider' // 引入slider基础轮播组件
 import { getDiscList } from 'api/recommend'
 import scroll from 'base/scroll/scroll' //引入 scroll 组件
 import loading from 'base/loading/loading' //引入加载gif组件
+import { myMixin } from 'common/js/mixin'
+import { mapMutations } from 'vuex'
 
 export default {
+  mixins: [
+    myMixin
+  ],
   data() {
     return {
       recommends: [],
@@ -54,10 +60,23 @@ export default {
     loading,
   },
   methods: {
+    ...mapMutations({
+      SET_DESC: 'SET_DESC', ////映射 this.SET_DESC() 为 this.$store.commit('SET_DESC') 
+    }),
+    selectItem(item) {
+      this.$router.push({
+        path: `/recommend/${item.dissid}`
+      });
+      this.SET_DESC(item);
+    },
+    handlePlayList(playList) {
+      const bottomOffset = playList.length > 0 ? '60px' : '';
+      this.$refs.recommend.style.bottom = bottomOffset;
+      this.$refs.scroll.refresh();
+    },
     _getRecommend() {
       getRecommend().then((res) => {
         if (res.code === ERR_OK) {
-
           this.recommends = res.data.slider;
         }
       })
@@ -78,9 +97,9 @@ export default {
   },
   created() {
     this._getRecommend();
-    setTimeout(()=> {
-       this._getDiscList();
-    }, 2000);
+    setTimeout(() => {
+      this._getDiscList();
+    }, 200);
   },
   computed: {
 

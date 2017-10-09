@@ -29,8 +29,12 @@ import songList from 'base/song-list/song-list';//引入songlist base组件
 import scroll from 'base/scroll/scroll' //引入scroll组件
 import loading from 'base/loading/loading'
 import { mapActions } from 'vuex'
+import { myMixin } from 'common/js/mixin' //引入全局混合
 
 export default {
+  mixins: [
+    myMixin
+  ],
   props: {
     bgImage: {
       type: String,
@@ -51,14 +55,20 @@ export default {
     }
   },
   methods: {
+    handlePlayList(playList) {
+      // console.log('mixin');
+      const bottomOffset = playList.length > 0 ? '60px' : 0;
+      this.$refs.srcollFix.$el.style.bottom = bottomOffset;
+       this.$refs.srcollFix.refresh();
+    },
     back() {
       this.$router.back()
     },
     selectItem(item, index) { //监听songlist歌曲单击事件,调用vueX actions 批量提交mutations
       this.selectPlay({ list: this.songs, index });
     },
-    random(){
-      this.randomPlay({list:this.songs});
+    random() {
+      this.randomPlay({ list: this.songs });
     },
     ...mapActions([
       'selectPlay',
