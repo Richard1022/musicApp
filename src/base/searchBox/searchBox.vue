@@ -1,7 +1,7 @@
 <template>
   <div class="search-box">
     <i class="icon-search"></i>
-    <input ref="query" class="box" v-model="queryTxt" :placeholder="placeholder" />
+    <input ref="query" class="box" v-model="queryTxt"  :placeholder="placeholder" />
     <i v-show="queryTxt" @click="clearTxt" class="icon-dismiss"></i>
   </div>
 </template>
@@ -26,7 +26,7 @@ export default {
     },
     setQueryTxt(item) {
       this.queryTxt = item;
-    }
+    },
   },
   created() {
     this.$watch('queryTxt', (newQuery) => {

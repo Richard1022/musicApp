@@ -1,9 +1,9 @@
 <template>
 	<div class="search">
 		<div class="search-box-wrapper">
-			<search-box ref="searchBox"></search-box>
+			<search-box @queryEvent="doSearch" ref="searchBox"></search-box>
 		</div>
-		<div class="shortcut-wrapper">
+		<div class="shortcut-wrapper" v-show="!selectTxt">
 			<div class="shortcut">
 				<div class="hot-key">
 					<h1 class="title">热门搜索</h1>
@@ -13,6 +13,9 @@
 				</div>
 			</div>
 		</div>
+		<div class="search-result" v-show="selectTxt">
+			<suggest ref="suggest" :queryTxt="selectTxt"></suggest>
+		</div>
 	</div>
 </template>
 
@@ -20,14 +23,22 @@
 import searchBox from 'base/searchBox/searchBox';
 import { getHotSearch } from 'api/search';
 import { ERR_OK } from 'api/config';
+import suggest from 'components/suggest/suggest';
 
 export default {
 	data() {
 		return {
 			searchRecommends: [],
+			selectTxt: '',
 		}
 	},
+	computed: {
+
+	},
 	methods: {
+		doSearch(newQuery) {
+			this.selectTxt = newQuery;
+		},
 		_getHotSearch() {
 			getHotSearch().then((res) => {
 				if (res.code === ERR_OK) {
@@ -37,7 +48,7 @@ export default {
 				console.log('get error')
 			})
 		},
-		selectHotKey(item){
+		selectHotKey(item) {
 			this.$refs.searchBox.setQueryTxt(item);
 		}
 	},
@@ -46,6 +57,7 @@ export default {
 	},
 	components: {
 		searchBox,
+		suggest,
 	}
 }
 </script>

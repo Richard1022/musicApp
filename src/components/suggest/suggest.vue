@@ -1,10 +1,12 @@
 <template>
     <div class="suggest">
         <ul class="suggest-list">
-            <li>
-                <div class="icon"></div>
+            <li class="suggest-item" v-for="(item,index) in result" :key="index">
+                <div class="icon">
+                    <i :class="getIconClass(item)"></i>
+                </div>
                 <div class="name">
-                    <p class="text"></p>
+                    <p class="text">{{getSearchName(item)}}</p>
                 </div>
             </li>
         </ul>
@@ -34,11 +36,29 @@ export default {
             result: [],
         }
     },
+    created() {
+
+    },
     methods: {
+        getIconClass(item) {
+            if (item.type === SEARCH_TYPE){
+                return 'icon-mine'
+            }else{
+                return 'icon-music'
+            }
+        },
+        getSearchName(item){
+            if(item.type === SEARCH_TYPE){
+               return item.singername 
+            }else{
+                return `${item.songname}-${item.singer[0].name}`
+            }
+        },
         search() {
             searchSong(this.queryTxt, this.page, this.showSinger).then((res) => {
                 if (res.code === ERR_OK) {
                     this.result = this.getResult(res.data);
+                    console.log(this.result);
                 }
             }, (rej) => {
                 console.log('promise reject!!!')
@@ -47,11 +67,17 @@ export default {
         getResult(data) {
             let ret = [];
             if (data.zhida && data.zhida.singerid) {
-                ret.push({ ...data.zhida, ...{ type:SEARCH_TYPE}});
+                ret.push({ ...data.zhida, ...{ type: SEARCH_TYPE } });
             }
-            if(data.song){
-                ret.push(data.song.list);
+            if (data.song) {
+                ret.push(...data.song.list);
             }
+            return ret;
+        }
+    },
+    watch: {
+        queryTxt(newVal) {
+            this.search();
         }
     }
 }
