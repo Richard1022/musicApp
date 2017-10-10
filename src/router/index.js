@@ -7,7 +7,7 @@ import singer from 'components/singer/singer'
 // 以上为首页 四大板块组件
 import singerDetail from 'components/singer-detail/singer-detail' //引入子路由歌手详情组件
 import desc from 'components/desc/desc' //引入子路由 推荐歌单详情组件
-
+import topList from 'components/top-list/top-list'
 Vue.use(Router)
 
 export default new Router({
@@ -18,12 +18,18 @@ export default new Router({
     },
     {
       path: '/rank',
-      component: rank
+      component: rank,
+      children: [
+        {
+          path: ':id',
+          component:topList
+        }
+      ]
     },
     {
       path: '/recommend',
       component: recommend,
-      children:[
+      children: [
         {
           path: ':id',
           component: desc

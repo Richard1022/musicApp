@@ -15,3 +15,5 @@ export const SET_MODE ='SET_MODE'; //播放模式
 export const SET_CURRENTINDEX='SET_CURRENTINDEX'; //当前播放索引
 
 export const SET_DESC='SET_DESC'; //当前推荐歌单详情
+
+export const SET_TOPLIST = 'SET_TOPLIST'; //排行榜详情页

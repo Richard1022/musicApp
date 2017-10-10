@@ -16,7 +16,7 @@
     <div class="bg-layer" ref="layer"></div>
     <scroll :data="songs" class="list" ref="srcollFix">
       <div class="song-list-wrapper">
-        <song-list @select="selectItem" :songs="songs"></song-list>
+        <song-list :rank="rank" @select="selectItem" :songs="songs"></song-list>
       </div>
       <div class="loading-container" v-show="!songs.length">
         <loading :title="'正在获取歌单列表...'"></loading>
@@ -47,6 +47,10 @@ export default {
     title: {
       type: String,
       default: ""
+    },
+    rank:{
+      type:Boolean,
+      default:false
     }
   },
   computed: {

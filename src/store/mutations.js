@@ -27,6 +27,9 @@ const mutations = {
     },
     [types.SET_DESC](state, description) {
         state.desc = description;
-    }
+    },
+    [types.SET_TOPLIST](state, topList) {
+        state.topList = topList
+    },
 }
 export default mutations;

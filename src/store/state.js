@@ -13,6 +13,7 @@ const state={
     mode:PlayerConfig.sequence, //播放模式
     currentIndex:-1,  //当前播放索引
     desc:{}, //当前歌单推荐详情
+    topList:{}, //排行榜详情页数据
 };
 
 export default state;

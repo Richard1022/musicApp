@@ -1,7 +1,7 @@
 import jsonp from 'common/js/jsonp'
 import { commonParams, options } from './config.js'
 // 引入 jsonp 和常规参数
-import axios from 'axios' //
+import axios from 'axios' 
 
 
 

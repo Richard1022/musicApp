@@ -9,7 +9,7 @@ export default {
     props: {
         data: {  //传入data属性 watch监听变动,若变动scroll refresh
             type: Array,
-            default: null
+            default: []
         },
         probeType: { //滚动距离监听等级123
             type: Number,
@@ -35,10 +35,10 @@ export default {
                 probeType: this.probeType,
             });
             if (this.listenScroll) {
-                let vm=this;
-               this.scroll.on("scroll",(pos)=>{
-                  vm.$emit("scroll",pos);//子组件响度组件通信,父组件监听scroll事件获取传递参数pos
-               })
+                let vm = this;
+                this.scroll.on("scroll", (pos) => {
+                    vm.$emit("scroll", pos);//子组件响度组件通信,父组件监听scroll事件获取传递参数pos
+                })
             }
         },
         refresh() {
