@@ -16,6 +16,8 @@
 <script type="text/ecmascript-6">
 import { searchSong } from 'api/search';
 import { ERR_OK } from 'api/config';
+import {createSong} from 'common/js/song';
+import scroll from 'base/scroll/scroll';
 
 const SEARCH_TYPE = 'singer';
 
@@ -41,17 +43,17 @@ export default {
     },
     methods: {
         getIconClass(item) {
-            if (item.type === SEARCH_TYPE){
+            if (item.type === SEARCH_TYPE) {
                 return 'icon-mine'
-            }else{
+            } else {
                 return 'icon-music'
             }
         },
-        getSearchName(item){
-            if(item.type === SEARCH_TYPE){
-               return item.singername 
-            }else{
-                return `${item.songname}-${item.singer[0].name}`
+        getSearchName(item) {
+            if (item.type === SEARCH_TYPE) {
+                return item.singername
+            } else {
+                return `${item.name}-${item.singer}`
             }
         },
         search() {
@@ -70,8 +72,20 @@ export default {
                 ret.push({ ...data.zhida, ...{ type: SEARCH_TYPE } });
             }
             if (data.song) {
-                ret.push(...data.song.list);
+                let arr=[...data.song.list];
+                arr=this.formatSong(arr);
+                ret.push(...arr);
+
             }
+            return ret;
+        },
+        formatSong(list) {
+            let ret=[];
+            list.forEach((item) => {
+                if (item.songid && item.albumid) {
+                    ret.push(createSong(item));
+                }
+            });
             return ret;
         }
     },
@@ -79,6 +93,9 @@ export default {
         queryTxt(newVal) {
             this.search();
         }
+    },
+    components:{
+        scroll
     }
 }
 </script>
