@@ -3,7 +3,7 @@
 		<div class="search-box-wrapper">
 			<search-box @queryEvent="doSearch" ref="searchBox"></search-box>
 		</div>
-		<div class="shortcut-wrapper" v-show="!selectTxt">
+		<div class="shortcut-wrapper" ref="shortcutWrapper" v-show="!selectTxt">
 			<scroll ref="shortcutScroll" :data="concatData" class="shortcut">
 				<div>
 					<div class="hot-key">
@@ -24,7 +24,7 @@
 				</div>
 			</scroll>
 		</div>
-		<div class="search-result" v-show="selectTxt">
+		<div class="search-result" ref="searchResult" v-show="selectTxt">
 			<suggest @saveEvent="saveHistory" ref="suggest" :queryTxt="selectTxt"></suggest>
 		</div>
 		<confirm ref="confirm" :text="'确认清空全部?'" :confirmBtnText="'清空搜索'" @confirm="clearAll"></confirm>
@@ -45,9 +45,9 @@ import scroll from 'base/scroll/scroll';
 import { myMixin } from 'common/js/mixin';
 
 export default {
-	mixins: {
+	mixins: [
 		myMixin
-	},
+	],
 	data() {
 		return {
 			searchRecommends: [],
@@ -65,9 +65,10 @@ export default {
 	methods: {
 		handlePlayList(playList) {
 			const bottomOffset = playList.length > 0 ? '60px' : '';
-			this.$refs.shortcutScroll.style.bottom = bottomOffset;
+			this.$refs.shortcutWrapper.style.bottom = bottomOffset; //修改scroll组件父级尺寸,改动滚动视口,refresh
+			// console.log(this.$refs.shortcutScroll.$el.style.bottom);
 			this.$refs.shortcutScroll.refresh();
-			this.$refs.suggest.style.bottom = bottomOffset;
+			this.$refs.searchResult.style.bottom = bottomOffset;
 			this.$refs.suggest.scrollRefresh();
 		},
 		doSearch(newQuery) {
