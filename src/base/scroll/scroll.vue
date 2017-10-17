@@ -22,6 +22,10 @@ export default {
         listenScroll: { //监听scroll prop true时  init方法中调用
             type: Boolean,
             default: false
+        },
+        pullUp: {
+            type: Boolean,
+            default: false
         }
     },
     methods: {
@@ -38,6 +42,13 @@ export default {
                 let vm = this;
                 this.scroll.on("scroll", (pos) => {
                     vm.$emit("scroll", pos);//子组件响度组件通信,父组件监听scroll事件获取传递参数pos
+                })
+            };
+            if (this.pullUp) {
+                this.scroll.on('scrollEnd', () => {
+                    if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
+                        this.$emit('scrollToBottom'); //监听滑动到底部派发事件
+                    }
                 })
             }
         },
@@ -79,7 +90,6 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
-
 </style>
 
 

@@ -13,13 +13,13 @@ export function getHotSearch() { //抓取热门搜索词
     return jsonp(url, data, options);
 }
 
-export function searchSong(queryTxt, page, zhida) {
+export function searchSong(queryTxt, page, zhida,perpage) {
     const url = "https://szc.y.qq.com/soso/fcgi-bin/search_for_qq_cp";
     const data = Object.assign({}, commonParams, {
         w: queryTxt, //检索关键字
         p: page,    //页数
-        // perpage,
-        // n: perpage,
+        perpage,
+        n: perpage,
         catZhida: zhida ? 1 : 0,   //检索歌曲直达
         zhidaqu: 1,
         t: 0,

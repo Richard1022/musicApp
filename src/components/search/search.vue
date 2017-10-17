@@ -4,18 +4,31 @@
 			<search-box @queryEvent="doSearch" ref="searchBox"></search-box>
 		</div>
 		<div class="shortcut-wrapper" v-show="!selectTxt">
-			<div class="shortcut">
-				<div class="hot-key">
-					<h1 class="title">热门搜索</h1>
-					<ul>
-						<li @click="selectHotKey(item.k)" class="item" v-for="(item,index) in searchRecommends" :key="index">{{item.k}}</li>
-					</ul>
+			<scroll ref="shortcutScroll" :data="concatData" class="shortcut">
+				<div>
+					<div class="hot-key">
+						<h1 class="title">热门搜索</h1>
+						<ul>
+							<li @click="selectHotKey(item.k)" class="item" v-for="(item,index) in searchRecommends" :key="index">{{item.k}}</li>
+						</ul>
+					</div>
+					<div class="search-history" v-show="getSearchHistory.length">
+						<h1 class="title">
+							<span class="text">搜索历史</span>
+							<span class="clear" @click="openConfirm">
+								<i class="icon-clear"></i>
+							</span>
+						</h1>
+						<search-list @slelectSearch="selectSearchSong" :searches="getSearchHistory"></search-list>
+					</div>
 				</div>
-			</div>
+			</scroll>
 		</div>
 		<div class="search-result" v-show="selectTxt">
-			<suggest ref="suggest" :queryTxt="selectTxt"></suggest>
+			<suggest @saveEvent="saveHistory" ref="suggest" :queryTxt="selectTxt"></suggest>
 		</div>
+		<confirm ref="confirm" :text="'确认清空全部?'" :confirmBtnText="'清空搜索'" @confirm="clearAll"></confirm>
+		<router-view></router-view>
 	</div>
 </template>
 
@@ -24,8 +37,17 @@ import searchBox from 'base/searchBox/searchBox';
 import { getHotSearch } from 'api/search';
 import { ERR_OK } from 'api/config';
 import suggest from 'components/suggest/suggest';
+import { mapActions } from 'vuex';
+import { mapGetters } from 'vuex';
+import searchList from 'base/searchList/searchList';
+import confirm from 'base/confirm/confirm';
+import scroll from 'base/scroll/scroll';
+import { myMixin } from 'common/js/mixin';
 
 export default {
+	mixins: {
+		myMixin
+	},
 	data() {
 		return {
 			searchRecommends: [],
@@ -33,9 +55,21 @@ export default {
 		}
 	},
 	computed: {
-
+		...mapGetters([
+			'getSearchHistory',
+		]),
+		concatData() {
+			return this.searchRecommends.concat(this.getSearchHistory);
+		}
 	},
 	methods: {
+		handlePlayList(playList) {
+			const bottomOffset = playList.length > 0 ? '60px' : '';
+			this.$refs.shortcutScroll.style.bottom = bottomOffset;
+			this.$refs.shortcutScroll.refresh();
+			this.$refs.suggest.style.bottom = bottomOffset;
+			this.$refs.suggest.scrollRefresh();
+		},
 		doSearch(newQuery) {
 			this.selectTxt = newQuery;
 		},
@@ -50,7 +84,24 @@ export default {
 		},
 		selectHotKey(item) {
 			this.$refs.searchBox.setQueryTxt(item);
-		}
+		},
+		saveHistory(item) {
+			// console.log(this.selectTxt);
+			this.saveSearchHistory(this.selectTxt);
+		},
+		...mapActions([
+			'saveSearchHistory'
+		]),
+		clearAll() {
+			localStorage.clear();
+			this.$store.commit('SET_HISTORY', []);
+		},
+		selectSearchSong(item) {
+			this.$refs.searchBox.queryTxt = item;
+		},
+		openConfirm() {
+			this.$refs.confirm.show();
+		},
 	},
 	created() {
 		this._getHotSearch();
@@ -58,6 +109,18 @@ export default {
 	components: {
 		searchBox,
 		suggest,
+		searchList,
+		confirm,
+		scroll
+	},
+	watch: {
+		selectTxt(newQuery) {
+			if (!newQuery) {
+				setTimeout(() => {
+					this.$refs.shortcutScroll.refresh();
+				})
+			}
+		}
 	}
 }
 </script>
