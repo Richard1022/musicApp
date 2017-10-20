@@ -33,6 +33,9 @@ const mutations = {
     },
     [types.SET_HISTORY](state, saveSearchItem) {
         state.searchHistory = saveSearchItem
+    },
+    [types.SET_PLAY_HISTORY](state, history) {
+        state.playHistory = history
     }
 }
 export default mutations;

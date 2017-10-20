@@ -42,16 +42,17 @@ import { mapGetters } from 'vuex';
 import searchList from 'base/searchList/searchList';
 import confirm from 'base/confirm/confirm';
 import scroll from 'base/scroll/scroll';
-import { myMixin } from 'common/js/mixin';
+import { myMixin,searchMixin } from 'common/js/mixin';
 
 export default {
 	mixins: [
-		myMixin
+		myMixin,
+		searchMixin
 	],
 	data() {
 		return {
 			searchRecommends: [],
-			selectTxt: '',
+			// selectTxt: '', mixin
 		}
 	},
 	computed: {
@@ -71,9 +72,9 @@ export default {
 			this.$refs.searchResult.style.bottom = bottomOffset;
 			this.$refs.suggest.scrollRefresh();
 		},
-		doSearch(newQuery) {
-			this.selectTxt = newQuery;
-		},
+		// doSearch(newQuery) {
+		// 	this.selectTxt = newQuery;
+		// },
 		_getHotSearch() {
 			getHotSearch().then((res) => {
 				if (res.code === ERR_OK) {
@@ -86,13 +87,13 @@ export default {
 		selectHotKey(item) {
 			this.$refs.searchBox.setQueryTxt(item);
 		},
-		saveHistory(item) {
-			// console.log(this.selectTxt);
-			this.saveSearchHistory(this.selectTxt);
-		},
-		...mapActions([
-			'saveSearchHistory'
-		]),
+		// saveHistory(item) {
+		// 	// console.log(this.selectTxt);
+		// 	this.saveSearchHistory(this.selectTxt);
+		// },
+		// ...mapActions([
+		// 	'saveSearchHistory'
+		// ]),
 		clearAll() {
 			localStorage.clear();
 			this.$store.commit('SET_HISTORY', []);
