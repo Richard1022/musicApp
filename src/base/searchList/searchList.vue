@@ -14,8 +14,12 @@
 <script type="text/ecmascript-6">
 import { searchKey } from 'common/js/cache';
 import { mapMutations } from 'vuex';
+import {searchMixin} from 'common/js/mixin'
 
 export default {
+    mixins:[
+        searchMixin
+    ],
     props: {
         searches: {
             type: Array,
@@ -26,20 +30,20 @@ export default {
         selectItem(item) {
             this.$emit('slelectSearch', item)
         },
-        deleteList(paraItem) {
-            let storageSearchList = JSON.parse(localStorage.getItem(searchKey));
-            let deleteIndex = storageSearchList.findIndex((item) => {
-                return item === paraItem
-            });
-            storageSearchList.splice(deleteIndex, 1);
-            this.setHistory(storageSearchList);
-            //重新存储localstorage需要序列化
-            storageSearchList = JSON.stringify(storageSearchList);
-            localStorage.setItem(searchKey, storageSearchList);
-        },
-        ...mapMutations({
-            setHistory: 'SET_HISTORY'
-        }),
+        // deleteList(paraItem) {
+        //     let storageSearchList = JSON.parse(localStorage.getItem(searchKey));
+        //     let deleteIndex = storageSearchList.findIndex((item) => {
+        //         return item === paraItem
+        //     });
+        //     storageSearchList.splice(deleteIndex, 1);
+        //     this.setHistory(storageSearchList);
+        //     //重新存储localstorage需要序列化
+        //     storageSearchList = JSON.stringify(storageSearchList);
+        //     localStorage.setItem(searchKey, storageSearchList);
+        // },
+        // ...mapMutations({
+        //     setHistory: 'SET_HISTORY'
+        // }),
     }
 }
 </script>
