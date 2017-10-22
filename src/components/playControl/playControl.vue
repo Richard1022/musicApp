@@ -26,7 +26,7 @@
                     </transition-group>
                 </scroll>
                 <div class="list-operate">
-                    <div class="add">
+                    <div class="add" @click="showAdd">
                         <i class="icon-add"></i>
                         <span class="text">添加歌曲到队列</span>
                     </div>
@@ -36,6 +36,7 @@
                 </div>
             </div>
             <confirm ref="confirm" @confirm="confirmClear" text="是否清空播放列表" confirmBtnText="清空"></confirm>
+            <add-song ref="addSong"></add-song>
         </div>
     </transition>
 </template>
@@ -48,6 +49,7 @@ import { mapMutations } from 'vuex'
 import { mapActions } from 'vuex'
 import { PlayerConfig } from 'common/js/config'
 import { playModeMixin } from 'common/js/mixin' //引入全局混合
+import addSong from "components/addSOng/addSong"
 
 export default {
     mixins: [
@@ -56,6 +58,7 @@ export default {
     components: {
         scroll,
         confirm,
+        addSong,
     },
     data() {
         return {
@@ -75,6 +78,9 @@ export default {
         }
     },
     methods: {
+        showAdd(){
+            this.$refs.addSong.showAdd();
+        },
         confirmClear() {
             this.clearPlayList();
         },

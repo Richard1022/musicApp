@@ -19,3 +19,5 @@ export const SET_DESC = 'SET_DESC'; //当前推荐歌单详情
 export const SET_TOPLIST = 'SET_TOPLIST'; //排行榜详情页
 
 export const SET_HISTORY = 'SET_HISTORY'; //save searchHistory
+
+export const SET_PLAY_HISTORY = 'SET_PLAY_HISTORY'; //播放历史

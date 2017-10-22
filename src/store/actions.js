@@ -1,7 +1,7 @@
 import * as types from './mutations-types'
 import { PlayerConfig } from 'common/js/config'
 import { shuffleArr } from 'common/js/util'
-import { saveSearchCache } from 'common/js/cache'
+import { saveSearchCache,savePlayHistory } from 'common/js/cache'
 
 function findSong(list, song) {
     return list.findIndex((item) => {
@@ -103,9 +103,15 @@ export const deleteSongList = function ({ commit, state }, song) {
     commit(types.SET_PLAYING_STATE, playFlag);
 }
 
-export const clearPlayList = function ({ commit }) {
+export const clearPlayList = function ({ commit }) {  // 清空播放列表
     commit(types.SET_PLAY_LIST, []);
     commit(types.SET_SEQUENCE_LIST, []);
     commit(types.SET_CURRENTINDEX, -1);
     commit(types.SET_PLAYING_STATE, false);
 }
+
+//存储播放历史
+export const savePlayHistoryAction =function({commit},song){
+    commit(types.SET_PLAY_HISTORY,savePlayHistory(song));
+}
+

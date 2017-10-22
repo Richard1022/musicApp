@@ -1,5 +1,4 @@
-import { mapGetters } from 'vuex';
-import { mapMutations } from 'vuex';
+import { mapGetters, mapMutations, mapActions } from 'vuex';
 import { shuffleArr } from 'common/js/util' //引入util.js 的洗牌数组
 import { PlayerConfig } from 'common/js/config' //引入播放模式配置文件
 
@@ -31,7 +30,13 @@ export const playModeMixin = {
     computed: {
         playMode() {
             return this.mode === PlayerConfig.sequence ? 'icon-sequence' : this.mode == PlayerConfig.loop ? 'icon-loop' : 'icon-random';
-        }
+        },
+        ...mapGetters([
+            'mode',
+            'sequenceList',
+            'playList',
+            'currentSong'
+        ])
     },
     methods: {
         changePlayMode() { //commit setMode mutations
@@ -48,10 +53,10 @@ export const playModeMixin = {
         },
         resetCurrentIndex(list) {
             let index = list.findIndex((item) => {
-              return item.id === this.currentSong.id;
+                return item.id === this.currentSong.id;
             })
             this.setCurrentIndex(index);
-          },
+        },
         ...mapMutations({
             setFullScreen: 'SET_FULLSCREEN',
             setPlayingState: 'SET_PLAYING_STATE',
@@ -59,11 +64,24 @@ export const playModeMixin = {
             setMode: 'SET_MODE',
             setPlayList: 'SET_PLAY_LIST',
         }),
-        ...mapGetters([
-            'mode',
-            'sequenceList',
-            'playList',
-            'currentSong'
-        ])
+    }
+}
+
+export const searchMixin = {
+    data() {
+        return {
+            selectTxt: '',
+        }
+    },
+    methods: {
+        doSearch(newQuery) {
+            this.selectTxt = newQuery;
+        },
+        saveHistory(item) {
+            this.saveSearchHistory(this.selectTxt);
+        },
+        ...mapActions([
+            'saveSearchHistory'
+        ]),
     }
 }

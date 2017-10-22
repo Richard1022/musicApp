@@ -88,7 +88,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations,mapActions } from 'vuex'
 import progressBar from 'base/progressBar/progressBar'
 import circleProgress from 'base/circleProgress/circleProgress'
 import { PlayerConfig } from 'common/js/config' //引入播放模式配置文件
@@ -151,6 +151,9 @@ export default {
     // }
   },
   methods: {
+    ...mapActions([
+      'savePlayHistoryAction'
+    ]),
     ...mapMutations({
       setFullScreen: 'SET_FULLSCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
@@ -273,6 +276,7 @@ export default {
     },
     ready() {
       this.songReady = true;
+      this.savePlayHistoryAction(this.currentSong);
     },
     error() {
       console.log('ready error')
