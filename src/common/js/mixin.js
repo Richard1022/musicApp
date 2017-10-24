@@ -86,7 +86,7 @@ export const searchMixin = {
     }
 }
 export const favoriteMixin = {
-    computed:{
+    computed: {
         ...mapGetters([
             'getMyCollect'
         ])

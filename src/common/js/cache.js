@@ -57,7 +57,7 @@ export function savePlayHistory(song) {
 }
 
 export function loadPlayHistory() {
-    return JSON.parse(localStorage.getItem(playHistoryKey));
+    return JSON.parse(localStorage.getItem(playHistoryKey))||[];
 }
 
 export function saveCollectToLocal(song) {

@@ -7,7 +7,7 @@
       <div class="switches-wrapper">
         <switches @switch="switchItem" :switches="switches" :currentIndex="currentIndex"></switches>
       </div>
-      <div ref="playBtn" class="play-btn" @click="randomPlay">
+      <div ref="playBtn" class="play-btn" @click="randomPlayUser">
         <i class="icon-play"></i>
         <span class="text">随机播放全部</span>
       </div>
@@ -23,7 +23,8 @@
                </div>
             </scroll>
       </div>
-      <div class="no-result-wrapper">
+      <div class="no-result-wrapper" v-show="computedShow">
+        <tipPic :title="titleTxt"></tipPic>
       </div>
     </div>
   </transition>
@@ -33,12 +34,13 @@
 import switches from "base/switches/switches";
 import Scroll from "base/scroll/scroll";
 import SongList from "base/song-list/song-list";
-//   import NoResult from 'base/no-result/no-result'
 import Song from "common/js/song";
 import { mapGetters, mapActions } from "vuex";
-//   import {playlistMixin} from 'common/js/mixin'
+import { myMixin } from "common/js/mixin";
+import tipPic from "base/tipPic/tipPic";
 
 export default {
+  mixins: [myMixin],
   data() {
     return {
       switches: [
@@ -54,13 +56,41 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["getPlayHistory", "getMyCollect"])
+    ...mapGetters(["getPlayHistory", "getMyCollect"]),
+    titleTxt() {
+      if (this.currentIndex == 0) {
+        return "当前没有收藏";
+      } else if (this.currentIndex == 1) {
+        return "最近没有播放歌曲";
+      }
+    },
+    computedShow() {
+      if (this.currentIndex == 0) {
+        if (this.getMyCollect.length == 0) {
+          return true;
+        } else {
+          return false;
+        }
+      } else if (this.currentIndex == 1) {
+        if (this.getPlayHistory.length == 0) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
   },
   methods: {
+    handlePlayList(playList) {
+      const bottomOffset = playList.length > 0 ? "60px" : " ";
+      this.$refs.listWrapper.style.bottom = bottomOffset;
+      this.$refs.zeroScroll && this.$refs.zeroScroll.refresh();
+      this.$refs.twoScroll && this.$refs.twoScroll.refresh();
+    },
     back() {
       this.$router.back();
     },
-    randomPlay() {
+    randomPlayUser() {
       let list =
         this.currentIndex === 0 ? this.getMyCollect : this.getPlayHistory;
       list = list.map(item => {
@@ -88,7 +118,8 @@ export default {
   components: {
     switches,
     Scroll,
-    SongList
+    SongList,
+    tipPic
   }
 };
 </script>
