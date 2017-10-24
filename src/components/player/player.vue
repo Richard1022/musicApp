@@ -57,7 +57,7 @@
               <i class="icon-next " @click="nextSong "></i>
             </div>
             <div class="icon i-right ">
-              <i class="icon icon-not-favorite "></i>
+              <i class="icon"  :class="getFavourCls(currentSong)" @click.stop="changeCollect(currentSong)"></i>
             </div>
           </div>
         </div>
@@ -88,32 +88,30 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { mapGetters, mapMutations,mapActions } from 'vuex'
-import progressBar from 'base/progressBar/progressBar'
-import circleProgress from 'base/circleProgress/circleProgress'
-import { PlayerConfig } from 'common/js/config' //引入播放模式配置文件
-import Lyric from 'lyric-parser'
-import Scroll from 'base/scroll/scroll'
-import playControl from 'components/playControl/playControl'
-import {playModeMixin} from 'common/js/mixin' //引入全局混合
+import { mapGetters, mapMutations, mapActions } from "vuex";
+import progressBar from "base/progressBar/progressBar";
+import circleProgress from "base/circleProgress/circleProgress";
+import { PlayerConfig } from "common/js/config"; //引入播放模式配置文件
+import Lyric from "lyric-parser";
+import Scroll from "base/scroll/scroll";
+import playControl from "components/playControl/playControl";
+import { playModeMixin, favoriteMixin } from "common/js/mixin"; //引入全局混合
 
 export default {
-  mixins:[
-    playModeMixin
-  ],
+  mixins: [playModeMixin, favoriteMixin],
   data() {
     return {
-      songReady: false,// 音乐准备完毕标识符
-      currentTime: 0,//当前歌曲播放时间
+      songReady: false, // 音乐准备完毕标识符
+      currentTime: 0, //当前歌曲播放时间
       SVGsize: 32,
       currentLyric: null, //默认歌词为null
       currentLineNum: 0, //当前歌词行数
-      currentShow: 'cd', //当前显示
-      currentPlayingLyric: '',//当前lyric
-    }
+      currentShow: "cd", //当前显示
+      currentPlayingLyric: "" //当前lyric
+    };
   },
   created() {
-    this.touch = {};//created 生命周期 创建touch对象存储数据,无需getter,setter
+    this.touch = {}; //created 生命周期 创建touch对象存储数据,无需getter,setter
   },
   components: {
     progressBar,
@@ -123,55 +121,74 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'fullScreen',
-      'playList',
-      'currentSong',
-      'playing_state',
-      'currentIndex',
-      'mode',
-      'sequenceList',
+      "fullScreen",
+      "playList",
+      "currentSong",
+      "playing_state",
+      "currentIndex",
+      "mode",
+      "sequenceList",
     ]),
     disable() {
-      return this.songReady ? '' : 'disable'
+      return this.songReady ? "" : "disable";
     },
     rotate() {
-      return this.playing_state ? 'play' : 'play pause'
+      return this.playing_state ? "play" : "play pause";
     },
     playIcon() {
-      return this.playing_state ? 'icon-pause' : 'icon-play';
+      return this.playing_state ? "icon-pause" : "icon-play";
     },
     miniIcon() {
-      return this.playing_state ? 'icon-pause-mini' : 'icon-play-mini';
+      return this.playing_state ? "icon-pause-mini" : "icon-play-mini";
     },
-    percentVal() { //播放进度百分比
+    percentVal() {
+      //播放进度百分比
       return this.currentTime / this.currentSong.duration;
-    },
-    // playMode() {
-    //   return this.mode === PlayerConfig.sequence ? 'icon-sequence' : this.mode == PlayerConfig.loop ? 'icon-loop' : 'icon-random';
-    // }
+    }
   },
   methods: {
-    ...mapActions([
-      'savePlayHistoryAction'
-    ]),
+    ...mapActions(["savePlayHistoryAction"]),
     ...mapMutations({
-      setFullScreen: 'SET_FULLSCREEN',
-      setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENTINDEX',
-      // setMode: 'SET_MODE',
-      // setPlayList: 'SET_PLAY_LIST',
+      setFullScreen: "SET_FULLSCREEN",
+      setPlayingState: "SET_PLAYING_STATE",
+      setCurrentIndex: "SET_CURRENTINDEX"
     }),
+    // getFavourCls(song) {
+    //   if (this.isFavorSong(song)) {
+    //     return "icon-favorite";
+    //   } else {
+    //     return "icon-not-favorite";
+    //   }
+    // },
+    // isFavorSong(song) {
+    //   let index=this.getMyCollect.findIndex((item)=>{
+    //     return item.id===song.id;
+    //   });
+    // if(index==-1){
+    //   return false;
+    // }else{
+    //   return true;
+    // }
+    // },
+    // changeCollect(song) {
+    //  if(this.isFavorSong(song)){
+    //     this.removeMyCollect(song);
+    //  }else{
+    //     this.saveMyCollect(song)
+    //  }
+    // },
     getLyric() {
-      this.currentSong.getLyric().then((lyric) => {
+      this.currentSong.getLyric().then(lyric => {
         this.currentLyric = new Lyric(lyric, this.handleLyric);
         if (this.playing_state) {
           this.currentLyric.play();
         }
         // console.log(this.currentLyric);
-      })
+      });
     },
-    handleLyric({ lineNum, txt }) {  //lineNum 当前歌词行 ,当前歌词文本
-      this.currentLineNum = lineNum
+    handleLyric({ lineNum, txt }) {
+      //lineNum 当前歌词行 ,当前歌词文本
+      this.currentLineNum = lineNum;
       if (lineNum > 5) {
         let lineElement = this.$refs.lyricLine[this.currentLineNum - 5];
         this.$refs.lyricScroll.scrollToElement(lineElement, 1000);
@@ -190,7 +207,8 @@ export default {
     loop() {
       this.$refs.audio.currentTime = 0;
       this.$refs.audio.play();
-      if (this.currentLyric) { //loop循环 歌词回到顶部
+      if (this.currentLyric) {
+        //loop循环 歌词回到顶部
         this.currentLyric.seek(0);
       }
     },
@@ -212,7 +230,8 @@ export default {
     //   })
     //   this.setCurrentIndex(index);
     // },
-    changePlayProgress(percent) { //滑动进度条
+    changePlayProgress(percent) {
+      //滑动进度条
       const playCurrentTime = percent * this.currentSong.duration;
       this.$refs.audio.currentTime = playCurrentTime;
       if (!this.playing_state) {
@@ -226,41 +245,45 @@ export default {
       this.setFullScreen(false);
     },
     open() {
-      this.setFullScreen(true)
+      this.setFullScreen(true);
     },
     togglePlay() {
       if (!this.songReady) {
-        return
+        return;
       }
       if (this.currentLyric) {
         this.currentLyric.togglePlay(); //若暂停时currentlyric 同步暂停
       }
-      this.setPlayingState(!this.playing_state);//通過getters获得状态管理模式的播放状态在通过mutations取反
+      this.setPlayingState(!this.playing_state); //通過getters获得状态管理模式的播放状态在通过mutations取反
     },
     nextSong() {
-      if (!this.songReady) {  //监听play事件 当媒介已就绪可以开始播放时运行的脚本。
+      if (!this.songReady) {
+        //监听play事件 当媒介已就绪可以开始播放时运行的脚本。
         return;
       }
-      if (this.playList.length == 1) {  //边界处理  如果当前播放列表长度为1,调用nextsong,当前索引值不变,导致songID不变后续逻辑将不执行
+      if (this.playList.length == 1) {
+        //边界处理  如果当前播放列表长度为1,调用nextsong,当前索引值不变,导致songID不变后续逻辑将不执行
         this.loop();
       } else {
         let index = this.currentIndex + 1;
-        if (index === this.playList.length) {  //边界判断
+        if (index === this.playList.length) {
+          //边界判断
           index = 0;
         }
         this.setCurrentIndex(index);
-        if (!this.playing_state) {   //同步commit vuex播放状态mutations
+        if (!this.playing_state) {
+          //同步commit vuex播放状态mutations
           this.togglePlay();
         }
-        this.songReady = false;  //标识符还原
+        this.songReady = false; //标识符还原
       }
-
     },
     prevSong() {
       if (!this.songReady) {
-        return
+        return;
       }
-      if (this.playList.length == 1) { //边界处理  如果当前播放列表长度为1,调用nextsong,当前索引值不变,导致songID不变后续逻辑将不执行
+      if (this.playList.length == 1) {
+        //边界处理  如果当前播放列表长度为1,调用nextsong,当前索引值不变,导致songID不变后续逻辑将不执行
         this.loop();
       } else {
         let index = this.currentIndex - 1;
@@ -279,11 +302,12 @@ export default {
       this.savePlayHistoryAction(this.currentSong);
     },
     error() {
-      console.log('ready error')
+      console.log("ready error");
       this.songReady = true;
     },
-    updateTime(event) {  //timeupdate 事件在音频/视频（audio/video）的播放位置发生改变时触发。
-      this.currentTime = event.target.currentTime;  //获取当前播放时间进度
+    updateTime(event) {
+      //timeupdate 事件在音频/视频（audio/video）的播放位置发生改变时触发。
+      this.currentTime = event.target.currentTime; //获取当前播放时间进度
     },
     paddingZero(str, num) {
       let len = str.toString().length;
@@ -293,12 +317,13 @@ export default {
       }
       return str;
     },
-    formatSeconds(value) { //声明播放时间过滤器
+    formatSeconds(value) {
+      //声明播放时间过滤器
       if (!value) {
         return "0";
       }
       let val = value | 0; //或0 相当于 调用Math.floor()下行取整
-      let minutes = val / 60 | 0;
+      let minutes = (val / 60) | 0;
       let seconds = val % 60;
       seconds = this.paddingZero(seconds, 2);
       return `${minutes}:${seconds}`;
@@ -311,38 +336,43 @@ export default {
     },
     middleTouchMove(e) {
       if (!this.touch.initiated) {
-        return //标识符false return
+        return; //标识符false return
       }
       const touch = e.touches[0];
       let offsetX = touch.pageX - this.touch.startX; //X轴滑动偏移量
       let offsetY = touch.pageY - this.touch.startY; //Y轴滑动偏移量
       if (Math.abs(offsetY) > Math.abs(offsetX)) {
-        return   //纵向滑动 return
-      };
-      const left = this.currentShow === 'cd' ? 0 : -window.innerWidth; //当前显示的middle左边距
-      //width is lyric translate3D X `s value. 边界设定 min 0  max 375   cd status 左滑为0 
-      const offsetWidth = Math.min(0, Math.max(-window.innerWidth, left + offsetX));
+        return; //纵向滑动 return
+      }
+      const left = this.currentShow === "cd" ? 0 : -window.innerWidth; //当前显示的middle左边距
+      //width is lyric translate3D X `s value. 边界设定 min 0  max 375   cd status 左滑为0
+      const offsetWidth = Math.min(
+        0,
+        Math.max(-window.innerWidth, left + offsetX)
+      );
       this.touch.percent = Math.abs(offsetWidth / window.innerWidth); //偏移percent
-      this.$refs.middleLeft.style.opacity = 1 - this.touch.percent;// 设置偏移透明度
-      this.$refs.lyricScroll.$el.style.transitionDuration = '0ms'; //偏移动画过渡时间
+      this.$refs.middleLeft.style.opacity = 1 - this.touch.percent; // 设置偏移透明度
+      this.$refs.lyricScroll.$el.style.transitionDuration = "0ms"; //偏移动画过渡时间
       this.$refs.lyricScroll.$el.style.transform = `translate3d(${offsetWidth}px,0,0)`;
     },
     middleTouchEnd(e) {
       let offsetWidth;
       let opacity;
-      if (this.currentShow === 'cd') {
-        if (this.touch.percent > 0.1) {  // cd status touchRight >10%
+      if (this.currentShow === "cd") {
+        if (this.touch.percent > 0.1) {
+          // cd status touchRight >10%
           offsetWidth = -window.innerWidth;
-          this.currentShow = 'lyric';
+          this.currentShow = "lyric";
           opacity = 0;
         } else {
           offsetWidth = 0;
           opacity = 1;
         }
-      } else {  //当前状态为lyric  右滑为0 
+      } else {
+        //当前状态为lyric  右滑为0
         if (this.touch.percent < 0.9) {
           offsetWidth = 0;
-          this.currentShow = 'cd';
+          this.currentShow = "cd";
           opacity = 1;
         } else {
           offsetWidth = -window.innerWidth;
@@ -354,37 +384,37 @@ export default {
       this.$refs.middleLeft.style.transtionDuration = `${transtionTime}ms`;
       this.$refs.middleLeft.style.opacity = opacity; // 设置偏移透明度
       this.$refs.lyricScroll.$el.style.transform = `translate3d(${offsetWidth}px,0,0)`;
-      this.$refs.lyricScroll.$el.style.transitionDuration = `${transtionTime}ms`
+      this.$refs.lyricScroll.$el.style.transitionDuration = `${transtionTime}ms`;
     },
-    showControl(){
+    showControl() {
       this.$refs.playControl.show();
     }
   },
   watch: {
     currentSong(newVal, oldVal) {
       //删除完播放列表时newVal为undefined,做边界判断
-      if(!newVal.id){
-        return
+      if (!newVal.id) {
+        return;
       }
       if (newVal.id === oldVal.id) {
-        return  //切换模式时 当前播放歌曲的id 没有变化 则保持之前播放状态 
-      };
+        return; //切换模式时 当前播放歌曲的id 没有变化 则保持之前播放状态
+      }
       if (this.currentLyric) {
         this.currentLyric.stop(); //如果之前有歌词 调用stop();
       }
       this.$nextTick(() => {
         this.$refs.audio.play();
         this.getLyric();
-      })
+      });
     },
     playing_state(newVal) {
       this.$nextTick(() => {
         let audio = this.$refs.audio;
         newVal ? audio.play() : audio.pause();
-      })
+      });
     }
   }
-}
+};
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">

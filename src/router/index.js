@@ -8,6 +8,7 @@ import singer from 'components/singer/singer'
 import singerDetail from 'components/singer-detail/singer-detail' //引入子路由歌手详情组件
 import desc from 'components/desc/desc' //引入子路由 推荐歌单详情组件
 import topList from 'components/top-list/top-list'
+import userCenter from 'components/userCenter/userCenter'
 Vue.use(Router)
 
 export default new Router({
@@ -55,6 +56,9 @@ export default new Router({
           component: singerDetail
         },
       ]
+    },{
+      path:'/user',
+      component:userCenter
     }
   ]
 })

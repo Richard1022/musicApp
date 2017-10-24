@@ -85,3 +85,37 @@ export const searchMixin = {
         ]),
     }
 }
+export const favoriteMixin = {
+    computed:{
+        ...mapGetters([
+            'getMyCollect'
+        ])
+    },
+    methods: {
+        ...mapActions(["saveMyCollect", "removeMyCollect"]),
+        getFavourCls(song) {
+            if (this.isFavorSong(song)) {
+                return "icon-favorite";
+            } else {
+                return "icon-not-favorite";
+            }
+        },
+        isFavorSong(song) {
+            let index = this.getMyCollect.findIndex((item) => {
+                return item.id === song.id;
+            });
+            if (index == -1) {
+                return false;
+            } else {
+                return true;
+            }
+        },
+        changeCollect(song) {
+            if (this.isFavorSong(song)) {
+                this.removeMyCollect(song);
+            } else {
+                this.saveMyCollect(song)
+            }
+        },
+    }
+}

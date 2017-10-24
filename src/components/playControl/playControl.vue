@@ -16,8 +16,8 @@
                         <li @click="selectPlayListItem(item,index)" class="item" v-for="(item,index) in sequenceList" :key="item.id">
                             <i class="current" :class="getCurrentIcon(item)"></i>
                             <span class="text">{{item.name}}</span>
-                            <span class="like">
-                                <i class="icon-favour"></i>
+                            <span class="like" @click.stop="changeCollect(item)" >
+                                <i class="icon"   :class="getFavourCls(item)"></i>
                             </span>
                             <span class="delete" @click.stop="removeSongItem(item)">
                                 <i class="icon-delete"></i>
@@ -42,94 +42,86 @@
 </template>
 
 <script type="text/ecmascript-6">
-import scroll from 'base/scroll/scroll'
-import confirm from 'base/confirm/confirm'
-import { mapGetters } from 'vuex'
-import { mapMutations } from 'vuex'
-import { mapActions } from 'vuex'
-import { PlayerConfig } from 'common/js/config'
-import { playModeMixin } from 'common/js/mixin' //引入全局混合
-import addSong from "components/addSOng/addSong"
+import scroll from "base/scroll/scroll";
+import confirm from "base/confirm/confirm";
+import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
+import { mapActions } from "vuex";
+import { PlayerConfig } from "common/js/config";
+import { playModeMixin, favoriteMixin } from "common/js/mixin"; //引入全局混合
+import addSong from "components/addSOng/addSong";
 
 export default {
-    mixins: [
-        playModeMixin
-    ],
-    components: {
-        scroll,
-        confirm,
-        addSong,
-    },
-    data() {
-        return {
-            test: [],
-            showFlag: false,
-        }
-    },
-    computed: {
-        ...mapGetters([
-            'sequenceList',
-            'currentSong',
-            'mode',
-            'playList',
-        ]),
-        modeText() {
-            return this.mode === PlayerConfig.sequence ? '顺序播放' : this.mode === PlayerConfig.random ? '随机播放' : '单曲循环'
-        }
-    },
-    methods: {
-        showAdd(){
-            this.$refs.addSong.showAdd();
-        },
-        confirmClear() {
-            this.clearPlayList();
-        },
-        show() {
-            this.showFlag = true;
-            setTimeout(() => {
-                this.$refs.listContent.refresh();
-            }, 20);
-        },
-        hide() {
-            this.showFlag = false;
-        },
-        getCurrentIcon(item) {
-            if (this.currentSong.id === item.id) {
-                return 'icon-play'
-            } else {
-                return ''
-            }
-        },
-        selectPlayListItem(item, index) {
-            //如果是顺序播放或者单曲循环,直接在playlist setindex ,
-            //若当前playmode为random,先寻到item在playlist中的index
-            if (this.mode === PlayerConfig.random) {
-                index = this.playList.findIndex((filterItem) => {
-                    return filterItem.id === item.id
-                });
-            }
-            this.setCurrentIndex(index);
-            this.setPlayState(true);
-        },
-        ...mapMutations({
-            setCurrentIndex: 'SET_CURRENTINDEX',
-            setPlayState: 'SET_PLAYING_STATE',
-        }),
-        ...mapActions([
-            'deleteSongList',
-            'clearPlayList'
-        ]),
-        removeSongItem(item) {
-            this.deleteSongList(item);
-            if (!this.playList.length) {
-                this.hide();
-            }
-        },
-        showConfirm() {
-            this.$refs.confirm.show();
-        }
+  mixins: [playModeMixin, favoriteMixin],
+  components: {
+    scroll,
+    confirm,
+    addSong
+  },
+  data() {
+    return {
+      test: [],
+      showFlag: false
+    };
+  },
+  computed: {
+    ...mapGetters(["sequenceList", "currentSong", "mode", "playList"]),
+    modeText() {
+      return this.mode === PlayerConfig.sequence
+        ? "顺序播放"
+        : this.mode === PlayerConfig.random ? "随机播放" : "单曲循环";
     }
-}
+  },
+  methods: {
+    showAdd() {
+      this.$refs.addSong.showAdd();
+    },
+    confirmClear() {
+      this.clearPlayList();
+    },
+    show() {
+      this.showFlag = true;
+      setTimeout(() => {
+        this.$refs.listContent.refresh();
+      }, 20);
+    },
+    hide() {
+      this.showFlag = false;
+    },
+    getCurrentIcon(item) {
+      if (this.currentSong.id === item.id) {
+        return "icon-play";
+      } else {
+        return "";
+      }
+    },
+    selectPlayListItem(item, index) {
+      //如果是顺序播放或者单曲循环,直接在playlist setindex ,
+      //若当前playmode为random,先寻到item在playlist中的index
+      if (this.mode === PlayerConfig.random) {
+        index = this.playList.findIndex(filterItem => {
+          return filterItem.id === item.id;
+        });
+      }
+      this.setCurrentIndex(index);
+      this.setPlayState(true);
+    },
+    ...mapMutations({
+      setCurrentIndex: "SET_CURRENTINDEX",
+      setPlayState: "SET_PLAYING_STATE"
+    }),
+    ...mapActions(["deleteSongList", "clearPlayList"]),
+    removeSongItem(item) {
+      this.deleteSongList(item);
+      if (!this.playList.length) {
+        this.hide();
+      }
+    },
+    showConfirm() {
+      this.$refs.confirm.show();
+    }
+  }
+};
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">

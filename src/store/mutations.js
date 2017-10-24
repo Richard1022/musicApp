@@ -36,6 +36,9 @@ const mutations = {
     },
     [types.SET_PLAY_HISTORY](state, history) {
         state.playHistory = history
+    },
+    [types.SET_COLLECT](state, list) {
+        state.myCollect = list;
     }
 }
 export default mutations;

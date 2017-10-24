@@ -1,6 +1,8 @@
 const SAVE_LENGTH = 15;//存储长度限制15
+const COLLECT_LENGTH = 200;
 export const searchKey = '__searchKey';//存储键值 搜索历史
 export const playHistoryKey = '_playHistory_';// 播放历史
+export const collectKey = '_favorite_'; //我的收藏
 
 
 //util functions:
@@ -48,7 +50,7 @@ export function savePlayHistory(song) {
         lastPlayHistory = JSON.parse(lastPlayHistory);
     }
     insertQueryArr(lastPlayHistory, song, (item) => {
-        return item === song
+        return item.id === song.id
     }, SAVE_LENGTH);
     localStorage.setItem(playHistoryKey, serialize(lastPlayHistory));
     return lastPlayHistory;
@@ -56,4 +58,33 @@ export function savePlayHistory(song) {
 
 export function loadPlayHistory() {
     return JSON.parse(localStorage.getItem(playHistoryKey));
+}
+
+export function saveCollectToLocal(song) {
+    let lastCollect = localStorage.getItem(collectKey) || [];
+    if (typeof lastCollect == "string") {
+        lastCollect = JSON.parse(lastCollect);
+    }
+    insertQueryArr(lastCollect, song, (item) => {
+        return item.id == song.id
+    }, COLLECT_LENGTH);
+    localStorage.setItem(collectKey, serialize(lastCollect));
+    return lastCollect;
+}
+
+export function removeCollectToLocal(song) {
+    let lastCollect = localStorage.getItem(collectKey) || [];
+    if (typeof lastCollect == "string") {
+        lastCollect = JSON.parse(lastCollect);
+    }
+    let fIndex = lastCollect.findIndex((item) => {
+        return item.id === song.id
+    });
+    lastCollect.splice(fIndex, 1);
+    localStorage.setItem(collectKey, serialize(lastCollect));
+    return lastCollect;
+}
+
+export function loadCollectToLocal() {
+    return JSON.parse(localStorage.getItem(collectKey)) || [];
 }

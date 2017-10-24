@@ -21,3 +21,5 @@ export const SET_TOPLIST = 'SET_TOPLIST'; //排行榜详情页
 export const SET_HISTORY = 'SET_HISTORY'; //save searchHistory
 
 export const SET_PLAY_HISTORY = 'SET_PLAY_HISTORY'; //播放历史
+
+export const SET_COLLECT ='SET_COLLECT'; // 我的收藏
