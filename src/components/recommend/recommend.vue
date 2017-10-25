@@ -35,33 +35,31 @@
 </template>
 
 <script>
-import { getRecommend } from 'api/recommend'  // 引入getremonmend方法 获取推荐页数据
-import { ERR_OK } from 'api/config'  // 引入常规常量参数
-import slider from 'base/slider/slider' // 引入slider基础轮播组件
-import { getDiscList } from 'api/recommend'
-import scroll from 'base/scroll/scroll' //引入 scroll 组件
-import loading from 'base/loading/loading' //引入加载gif组件
-import { myMixin } from 'common/js/mixin'
-import { mapMutations } from 'vuex'
+import { getRecommend } from "api/recommend"; // 引入getremonmend方法 获取推荐页数据
+import { ERR_OK } from "api/config"; // 引入常规常量参数
+import slider from "base/slider/slider"; // 引入slider基础轮播组件
+import { getDiscList } from "api/recommend";
+import scroll from "base/scroll/scroll"; //引入 scroll 组件
+import loading from "base/loading/loading"; //引入加载gif组件
+import { myMixin } from "common/js/mixin";
+import { mapMutations } from "vuex";
 
 export default {
-  mixins: [
-    myMixin
-  ],
+  mixins: [myMixin],
   data() {
     return {
       recommends: [],
-      discList: [],
-    }
+      discList: []
+    };
   },
   components: {
     slider,
     scroll,
-    loading,
+    loading
   },
   methods: {
     ...mapMutations({
-      SET_DESC: 'SET_DESC', ////映射 this.SET_DESC() 为 this.$store.commit('SET_DESC') 
+      SET_DESC: "SET_DESC" ////映射 this.SET_DESC() 为 this.$store.commit('SET_DESC')
     }),
     selectItem(item) {
       this.$router.push({
@@ -70,27 +68,29 @@ export default {
       this.SET_DESC(item);
     },
     handlePlayList(playList) {
-      const bottomOffset = playList.length > 0 ? '60px' : '';
+      const bottomOffset = playList.length > 0 ? "60px" : "";
       this.$refs.recommend.style.bottom = bottomOffset;
       this.$refs.scroll.refresh();
     },
     _getRecommend() {
-      getRecommend().then((res) => {
+      getRecommend().then(res => {
         if (res.code === ERR_OK) {
           this.recommends = res.data.slider;
         }
-      })
+      });
     },
     _getDiscList() {
-      getDiscList().then((res) => {
+      getDiscList().then(res => {
         if (res.code === ERR_OK) {
           // console.log(res.data.list); //接受代理请求到的数据
-          this.discList = res.data.list
+          this.discList = res.data.list;
         }
-      })
+      });
     },
-    loadImage() { //图片加载出一次即可撑开高度
+    loadImage() {
+      //图片加载出一次即可撑开高度
       if (!this.checkImage) {
+        this.checkImage = true;
         this.$refs.scroll.refresh();
       }
     }
@@ -99,61 +99,79 @@ export default {
     this._getRecommend();
     setTimeout(() => {
       this._getDiscList();
-    }, 200);
+    }, 200);  //200ms  强行显示loading
   },
-  computed: {
-
-  }
-}
+  computed: {}
+};
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-  @import "~common/stylus/variable"
+@import '~common/stylus/variable';
 
-  .recommend
-    position: fixed
-    width: 100%
-    top: 88px
-    bottom: 0
-    .recommend-content
-      height: 100%
-      overflow: hidden
-      .slider-wrapper
-        position: relative
-        width: 100%
-        overflow: hidden
-      .recommend-list
-        .list-title
-          height: 65px
-          line-height: 65px
-          text-align: center
-          font-size: $font-size-medium
-          color: $color-theme
-        .item
-          display: flex
-          box-sizing: border-box
-          align-items: center
-          padding: 0 20px 20px 20px
-          .icon
-            flex: 0 0 60px
-            width: 60px
-            padding-right: 20px
-          .text
-            display: flex
-            flex-direction: column
-            justify-content: center
-            flex: 1
-            line-height: 20px
-            overflow: hidden
-            font-size: $font-size-medium
-            .name
-              margin-bottom: 10px
-              color: $color-text
-            .desc
-              color: $color-text-d
-      .loading-container
-        position: absolute
-        width: 100%
-        top: 50%
-        transform: translateY(-50%)
+.recommend {
+  position: fixed;
+  width: 100%;
+  top: 88px;
+  bottom: 0;
+
+  .recommend-content {
+    height: 100%;
+    overflow: hidden;
+
+    .slider-wrapper {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .recommend-list {
+      .list-title {
+        height: 65px;
+        line-height: 65px;
+        text-align: center;
+        font-size: $font-size-medium;
+        color: $color-theme;
+      }
+
+      .item {
+        display: flex;
+        box-sizing: border-box;
+        align-items: center;
+        padding: 0 20px 20px 20px;
+
+        .icon {
+          flex: 0 0 60px;
+          width: 60px;
+          padding-right: 20px;
+        }
+
+        .text {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          flex: 1;
+          line-height: 20px;
+          overflow: hidden;
+          font-size: $font-size-medium;
+
+          .name {
+            margin-bottom: 10px;
+            color: $color-text;
+          }
+
+          .desc {
+            color: $color-text-d;
+          }
+        }
+      }
+    }
+
+    .loading-container {
+      position: absolute;
+      width: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
+}
 </style>

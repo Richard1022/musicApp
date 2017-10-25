@@ -84,7 +84,7 @@ export default {
     scroll,
     loading
   },
-  mounted() {  //挂在之后的hook 设置滚动区域的上边距为背景头像的高度
+  mounted() {  //挂载之后的hook 设置滚动区域的上边距为背景头像的高度
     this.$refs.srcollFix.$el.style.top = `${this.$refs.bgImage.clientHeight}px`;
   }
 }

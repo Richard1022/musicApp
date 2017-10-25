@@ -81,7 +81,7 @@ export default {
       this.$emit('select', item);//子父组件通信传递item
     },
     onShortCutTouchStart(event) {
-      let anchor = getData(event.target, "index"); //获取触摸事件源的index
+      let anchor = getData(event.target, "index"); //获取触摸事件源的data-index
       this.touch.y1 = event.touches[0].pageY; //获取触摸事件首次触摸式的pageY的值
       this.touch.anchor = anchor;  //首次触摸时的的索引
       this._scrollTo(anchor);
@@ -90,11 +90,11 @@ export default {
       this.touch.y2 = event.touches[0].pageY;//或许滑动时的实时pageY
       //滑动时的pageY-滑动start的pageY / const 滑块的高度 return 滑块个数
       let differentVal = (this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT;  //当前 滑动结束时anchor个数
-      let anchorIndex = parseInt(differentVal) + parseInt(this.touch.anchor);
+      let anchorIndex = parseInt(differentVal) + parseInt(this.touch.anchor);//滑动上下差 加上 当前anchor
       this._scrollTo(anchorIndex);
     },
     scrollParent(pos) {
-      this.scrollY = pos.y
+      this.scrollY = pos.y //实时Y值,scroll组件 @scroll事件派发出
     },
     _scrollTo(index) {
       this.scrollY = -this.listHeight[index];
@@ -138,9 +138,9 @@ export default {
       // this.currentIndex=listHeight.length-2
     },
     diff(newVal) {
-      //检测 固定标题之间的差值 若差值慢慢变小,则3d偏移,否则不做dom操作
+      //检测 固定标题之间的差值 若差值慢慢变小,则3d偏移,否则不做dom操作  diff 0-50之间改变 赋值fixedTOP
       let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0
-      if (this.fixedTop === fixedTop) {
+      if (this.fixedTop === fixedTop) {  //diff改变时 未影响到fixedtop  直接return
         return
       }
       this.fixedTop = fixedTop

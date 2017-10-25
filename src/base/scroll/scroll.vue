@@ -23,7 +23,7 @@ export default {
             type: Boolean,
             default: false
         },
-        pullUp: {
+        pullUp: {   //true 监听滚动结束时的y,若<=maxy+50  向父组件派发scrollend
             type: Boolean,
             default: false
         }

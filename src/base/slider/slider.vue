@@ -5,7 +5,7 @@
             </slot>
         </div>
         <div class="dots">
-            <span v-for="(item,index) in dots" class="dot" :class="{'active':currentIndex==index}"></span>
+            <span v-for="(item,index) in dots" class="dot" :class="{'active':currentIndex==index}" :key="index"></span>
         </div>
     </div>
 </template>
@@ -66,26 +66,26 @@ export default {
             for (let i = 0; i < this.children.length; i++) {
                 let child = this.children[i];
                 addClass(child, "slider-item");
-                child.style.width = sliderWidth + "px";
+                child.style.width = sliderWidth + "px";//每个子元素 设置宽度为当前slider组件宽度
                 width += sliderWidth;
             }
             if (this.loop && !isResize) {
-                width += 2 * sliderWidth
+                width += 2 * sliderWidth //若循环 前后+1 slider组件宽度
             }
-            this.$refs.sliderGroup.style.width = width + "px";
+            this.$refs.sliderGroup.style.width = width + "px"; // 轮播容器宽度
         },
         _initSlider() {
-            this.slider = new BScroll(this.$refs.slider, {
+            this.slider = new BScroll(this.$refs.slider, { //初始化 bscroll
                 scrollX: true,
                 scrollY: false,
                 momentum: false,
                 snap: true,
-                snapLoop: this.loop,
+                snapLoop: this.loop,  //循环播放
                 snapThreshold: 0.3,
                 snapSpeed: 400,
             })
-            this.slider.on('scrollEnd', () => {
-                let pageIndex = this.slider.getCurrentPage().pageX
+            this.slider.on('scrollEnd', () => {  //监听滚动结束事件
+                let pageIndex = this.slider.getCurrentPage().pageX //获取当前页数
                 if (this.loop) {
                     pageIndex -= 1
                 }
@@ -96,7 +96,7 @@ export default {
                 }
             })
         },
-        _initDots() {
+        _initDots() {//初始化  轮播点
             this.dots = new Array(this.children.length);
         },
         _play() {
@@ -107,7 +107,6 @@ export default {
             this.timer = setTimeout(() => {
                 this.slider.goToPage(pageIndex, 0, 400)
             }, this.interval);
-
         }
     }
 }
